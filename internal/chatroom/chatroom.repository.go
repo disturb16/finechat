@@ -16,6 +16,7 @@ const (
 	qryGetChatRoomsByUser  string = `call getChatRoomsByUser(?)`
 	qryChatRoomMessages    string = `call getChatRoomMessages(?)`
 	qrySaveChatRoomMessage string = `call saveChatRoomMessage(?, ?, ?)`
+	qrySaveChatRoomUser    string = `call saveChatRoomUser(?, ?)`
 )
 
 func (r *ChatRoomRepository) SaveChatRoom(ctx context.Context, name string, userID int64) error {
@@ -37,5 +38,10 @@ func (r *ChatRoomRepository) GetChatRoomMessages(ctx context.Context, chatRoomId
 
 func (r *ChatRoomRepository) SaveChatRoomMessage(ctx context.Context, chatRoomId int64, userId int64, message string) error {
 	_, err := r.db.ExecContext(ctx, qrySaveChatRoomMessage, chatRoomId, userId, message)
+	return err
+}
+
+func (r *ChatRoomRepository) SaveChatRoomUser(ctx context.Context, chatRoomId int64, userId int64) error {
+	_, err := r.db.ExecContext(ctx, qrySaveChatRoomUser, chatRoomId, userId)
 	return err
 }

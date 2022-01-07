@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 
 	"github.com/disturb16/finechat/configuration"
 	"github.com/disturb16/finechat/database"
+	"github.com/disturb16/finechat/internal/api"
 	"github.com/disturb16/finechat/internal/auth"
 	"github.com/disturb16/finechat/internal/chatroom"
+	"github.com/disturb16/finechat/internal/client"
 	"github.com/jmoiron/sqlx"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 )
 
@@ -23,10 +27,14 @@ func main() {
 			auth.NewService,
 			chatroom.NewRepository,
 			chatroom.NewService,
+			echo.New,
+			api.NewHandler,
 		),
 
 		fx.Invoke(
+			api.RegisterRoutes,
 			configureLifeCycle,
+			client.SetResources,
 		),
 	)
 
@@ -38,14 +46,19 @@ func dbConnection(ctx context.Context, cfg *configuration.Configuration) (*sqlx.
 }
 
 func configureLifeCycle(
-	ctx context.Context,
 	lc fx.Lifecycle,
 	db *sqlx.DB,
-	s auth.Service,
-	scr chatroom.Service,
+	config *configuration.Configuration,
+	e *echo.Echo,
 ) {
 	lc.Append(fx.Hook{
-		OnStart: func(ctxStart context.Context) error {
+		OnStart: func(ctx context.Context) error {
+			log.Println("Starting server...")
+			addr := fmt.Sprintf(":%d", config.App.Port)
+			go func() {
+				e.Logger.Fatal(e.Start(addr))
+			}()
+
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
@@ -58,6 +71,14 @@ func configureLifeCycle(
 				err := db.Close()
 				if err != nil {
 					log.Println("Error closing database connection:", err)
+				}
+			}()
+
+			go func() {
+				log.Println("Stopping server...")
+				err := e.Shutdown(ctx)
+				if err != nil {
+					log.Println("Error shutting down server:", err)
 				}
 			}()
 

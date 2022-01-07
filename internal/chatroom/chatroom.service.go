@@ -25,3 +25,7 @@ func (s *ChatRoomService) ListChatRoomMessages(ctx context.Context, chatRoomId i
 func (s *ChatRoomService) PostChatRoomMessage(ctx context.Context, chatRoomId int64, userId int64, message string) error {
 	return s.repo.SaveChatRoomMessage(ctx, chatRoomId, userId, message)
 }
+
+func (s *ChatRoomService) AddChatRoomGuest(ctx context.Context, chatRoomId int64, userId int64) error {
+	return s.repo.SaveChatRoomUser(ctx, chatRoomId, userId)
+}

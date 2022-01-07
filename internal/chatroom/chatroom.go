@@ -16,6 +16,8 @@ type Repository interface {
 	GetChatRooms(ctx context.Context, userId int64) ([]models.ChatRoom, error)
 	// GetChatRoomMessages returns the last 50 messages for the chat room.
 	GetChatRoomMessages(ctx context.Context, chatRoomId int64) ([]models.ChatRoomMessage, error)
+
+	SaveChatRoomUser(ctx context.Context, chatRoomId int64, userId int64) error
 }
 
 type Service interface {
@@ -23,6 +25,7 @@ type Service interface {
 	ListChatRooms(ctx context.Context, userId int64) ([]models.ChatRoom, error)
 	ListChatRoomMessages(ctx context.Context, chatRoomId int64) ([]models.ChatRoomMessage, error)
 	PostChatRoomMessage(ctx context.Context, chatRoomId int64, userId int64, message string) error
+	AddChatRoomGuest(ctx context.Context, chatRoomId int64, userId int64) error
 }
 
 func NewRepository(db *sqlx.DB) Repository {
