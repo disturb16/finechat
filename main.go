@@ -8,6 +8,7 @@ import (
 	"github.com/disturb16/finechat/configuration"
 	"github.com/disturb16/finechat/database"
 	"github.com/disturb16/finechat/internal/auth"
+	"github.com/disturb16/finechat/internal/chatroom"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/fx"
 )
@@ -20,6 +21,8 @@ func main() {
 			dbConnection,
 			auth.NewRepository,
 			auth.NewService,
+			chatroom.NewRepository,
+			chatroom.NewService,
 		),
 
 		fx.Invoke(
@@ -34,7 +37,13 @@ func dbConnection(ctx context.Context, cfg *configuration.Configuration) (*sqlx.
 	return database.CreateMysqlConnection(ctx, cfg.DB)
 }
 
-func configureLifeCycle(ctx context.Context, lc fx.Lifecycle, db *sqlx.DB, s auth.Service) {
+func configureLifeCycle(
+	ctx context.Context,
+	lc fx.Lifecycle,
+	db *sqlx.DB,
+	s auth.Service,
+	scr chatroom.Service,
+) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctxStart context.Context) error {
 			return nil

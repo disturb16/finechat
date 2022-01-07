@@ -34,37 +34,30 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `finechat`.`CHATROOMS` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
   `name` VARCHAR(45) NULL,
   `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`))
+  PRIMARY KEY (`id`),
+  INDEX `fk_CHATROOMS_USERS1_idx` (`user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_CHATROOMS_USERS1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `finechat`.`USERS` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `finechat`.`CHATROOM_PERMISSIONS`
+-- Table `finechat`.`CHATROOM_GUESTS`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `finechat`.`CHATROOM_PERMISSIONS` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `permission` VARCHAR(45) NOT NULL,
-  `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `deleted_date` DATETIME NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `finechat`.`CHATROOM_USERS`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `finechat`.`CHATROOM_USERS` (
+CREATE TABLE IF NOT EXISTS `finechat`.`CHATROOM_GUESTS` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `chatroom_id` INT UNSIGNED NOT NULL,
   `user_id` INT UNSIGNED NOT NULL,
-  `permission_id` INT UNSIGNED NOT NULL,
   `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `fk_CHATROOM_USERS_USERS1_idx` (`user_id` ASC) VISIBLE,
   INDEX `fk_CHATROOM_USERS_CHATROOMS1_idx` (`chatroom_id` ASC) VISIBLE,
-  INDEX `fk_CHATROOM_USERS_CHATROOM_PERMISSIONS1_idx` (`permission_id` ASC) VISIBLE,
   CONSTRAINT `fk_CHATROOM_USERS_USERS1`
     FOREIGN KEY (`user_id`)
     REFERENCES `finechat`.`USERS` (`id`)
@@ -73,11 +66,6 @@ CREATE TABLE IF NOT EXISTS `finechat`.`CHATROOM_USERS` (
   CONSTRAINT `fk_CHATROOM_USERS_CHATROOMS1`
     FOREIGN KEY (`chatroom_id`)
     REFERENCES `finechat`.`CHATROOMS` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_CHATROOM_USERS_CHATROOM_PERMISSIONS1`
-    FOREIGN KEY (`permission_id`)
-    REFERENCES `finechat`.`CHATROOM_PERMISSIONS` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -90,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `finechat`.`CHATROOM_MESSAGES` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `chatroom_id` INT UNSIGNED NOT NULL,
   `user_id` INT UNSIGNED NOT NULL,
-  `message` LONGTEXT NOT NULL,
+  `message` VARCHAR(500) NOT NULL,
   `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `fk_CHATROOM_MESSAGES_CHATROOMS1_idx` (`chatroom_id` ASC) VISIBLE,
@@ -145,6 +133,7 @@ CREATE PROCEDURE `getChatRoomsByUser` (
 )
 BEGIN
 	SELECT
+		cr.id,
 		cr.name
 	FROM CHATROOMS cr
 	INNER JOIN CHATROOM_USERS cru
@@ -195,14 +184,13 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
--- procedure getUserByEmail_SYNTAX_ERROR
+-- procedure getUserByEmail
 -- -----------------------------------------------------
 
 DELIMITER $$
 USE `finechat`$$
 CREATE PROCEDURE `getUserByEmail` (
-	in pi_email varchar(50),
-    in pi_password varchar(350)
+	in pi_email varchar(50)
 )
 BEGIN
 	SELECT
@@ -213,6 +201,64 @@ BEGIN
         u.password
 	FROM USERS u
     WHERE u.email = pi_email;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure saveChatRoom
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `finechat`$$
+CREATE PROCEDURE `saveChatRoom` (
+	in pi_name varchar(45),
+    in pi_userId int
+)
+BEGIN
+	INSERT INTO chatroom (name, user_id) VALUES (pi_name, pi_userId);
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure getChatRoomMessages
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `finechat`$$
+CREATE PROCEDURE `getChatRoomMessages` (
+	in pi_chatRoomId int
+)
+BEGIN
+	SELECT
+		message,
+        u.id as user_id,
+        CONCAT(u.first_name, u.last_name) as user_name
+	FROM CHATROOM_MESSAGES crm
+    INNER JOIN USERS u
+			ON crm.user_id = u.id
+	WHERE crm.chatroom_id = pi_chatRoomId
+    ORDER BY crm.created_date DESC
+    LIMIT 50;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure saveChatRoomMessage
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `finechat`$$
+CREATE PROCEDURE `saveChatRoomMessage` (
+	in pi_chatRoomId int,
+    in pi_userId int,
+    in pi_message varchar(500)
+)
+BEGIN
+	INSERT INTO CHATROOM_MESSAGES (chatroom_id, user_id, message)
+		VALUES(pi_chatRoomId, pi_userId, pi_message);
 END$$
 
 DELIMITER ;
