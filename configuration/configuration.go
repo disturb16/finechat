@@ -3,6 +3,7 @@ package configuration
 import (
 	"errors"
 	"io/ioutil"
+	"log"
 
 	"github.com/disturb16/finechat/database"
 	"gopkg.in/yaml.v2"
@@ -37,6 +38,7 @@ func Get(filepath string) (*Configuration, error) {
 
 	confFile, err = ioutil.ReadFile(filepath)
 	if err != nil {
+		log.Println("Error reading configuration file:", filepath)
 		return nil, ErrNoFile
 	}
 

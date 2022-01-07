@@ -206,7 +206,7 @@ CREATE PROCEDURE `getUserByEmail` (
 )
 BEGIN
 	SELECT
-		u.id
+		u.id,
 		u.first_name,
         u.last_name,
         u.email,

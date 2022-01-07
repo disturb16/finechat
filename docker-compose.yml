@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  db:
+    image: mariadb:10.6.4
+    # Uncomment the ports below if you need to access the database from the host.
+    # ports:
+    #   - 3306:3306
+    networks:
+      - finechat-net
+    configs:
+      - source: db_schema
+        target: /docker-entrypoint-initdb.d/schema.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+
+
+  api:
+    image: finechat:latest
+    ports:
+      - 8081:8080
+    networks:
+      - finechat-net
+    configs:
+      - source: api_config
+        target: /finechat/configuration.yml
+
+configs:
+  api_config:
+    file: ./configuration.yml
+  db_schema:
+    file: ./finechat_schema.sql
+
+networks:
+  finechat-net:

@@ -12,7 +12,7 @@ type AuthRepository struct {
 }
 
 const (
-	hasCost        int    = 20
+	hasCost        int    = 12
 	qrySaveUser    string = `call saveUser(?, ?, ?, ?)`
 	qryFindByEmail string = `call getUserByEmail(?)`
 )
@@ -40,6 +40,6 @@ func (r *AuthRepository) FindUserByEmail(
 
 	u := &models.UserWithPassword{}
 
-	err := r.db.GetContext(nil, u, qryFindByEmail, email)
+	err := r.db.GetContext(ctx, u, qryFindByEmail, email)
 	return u, err
 }

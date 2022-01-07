@@ -3,22 +3,24 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 
-	"github.com/disturb16/finechat/internal/auth/models"
+	"github.com/disturb16/finechat/tokenparser"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// AuthService is the service that handles authentication.
 type AuthService struct {
-	repo *AuthRepository
+	repo Repository
 }
 
+// ErrUserExists is returned when the user already exists.
 var ErrUserExists error = errors.New("user already exists")
 
 // RegisterUser registers a new user.
 func (s *AuthService) RegisterUser(ctx context.Context, firstName, lastName, email, password string) error {
-
-	u, _ := s.repo.FindUserByEmail(ctx, email)
-	if u != nil {
+	_, err := s.repo.FindUserByEmail(ctx, email)
+	if err == nil {
 		return ErrUserExists
 	}
 
@@ -27,23 +29,21 @@ func (s *AuthService) RegisterUser(ctx context.Context, firstName, lastName, ema
 		return err
 	}
 
-	passToSave := string(hashedpass)
-
-	return s.repo.SaveUser(ctx, firstName, lastName, email, passToSave)
+	return s.repo.SaveUser(ctx, firstName, lastName, email, string(hashedpass))
 }
 
-// LoginUser authenticates an user.
-func (s *AuthService) LoginUser(ctx context.Context, email, password string) (*models.User, error) {
-
+// LoginUser authenticates an user and returns the jwt.
+func (s *AuthService) LoginUser(ctx context.Context, email, password string) (string, error) {
 	u, err := s.repo.FindUserByEmail(ctx, email)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return u.ToUser(), nil
+	name := fmt.Sprintf("%s %s", u.FirstName, u.LastName)
+	return tokenparser.CreateAuthToken(u.Email, name)
 }

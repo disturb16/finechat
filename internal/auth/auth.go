@@ -14,13 +14,13 @@ type Repository interface {
 
 type Service interface {
 	RegisterUser(ctx context.Context, firstName, lastName, email, password string) error
-	LoginUser(ctx context.Context, email, password string) (*models.User, error)
+	LoginUser(ctx context.Context, email, password string) (string, error)
 }
 
 func NewRepository(db *sqlx.DB) Repository {
 	return &AuthRepository{db: db}
 }
 
-func NewService(repo *AuthRepository) Service {
+func NewService(repo Repository) Service {
 	return &AuthService{repo: repo}
 }
