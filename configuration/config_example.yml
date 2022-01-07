@@ -1,0 +1,11 @@
+Application:
+  debug: true
+  port: 8080
+  dbengine: mysql
+  currencyApikey: api-key-string
+Database:
+  host: localhost
+  port: 3306
+  name: dbname
+  user: user
+  password: pass

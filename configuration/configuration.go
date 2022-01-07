@@ -1,0 +1,54 @@
+package configuration
+
+import (
+	"errors"
+	"io/ioutil"
+
+	"github.com/disturb16/finechat/database"
+	"gopkg.in/yaml.v2"
+)
+
+// Application represents the main application configuration.
+type Application struct {
+	Debug bool `yaml:"debug"`
+	Port  int  `yaml:"port"`
+}
+
+// Configuration represents the configuration of the application.
+type Configuration struct {
+	App Application                    `yaml:"Application"`
+	DB  database.DatabaseConfiguration `yaml:"Database"`
+}
+
+const defaultFilePath = "configuration.yml"
+
+var (
+	// ErrNoFile is returned when the configuration file does not exist.
+	ErrNoFile error = errors.New("file not found")
+	// ErrParsingFile is returned when the configuration file is not valid.
+	ErrParsingFile error = errors.New("unable to parse file")
+)
+
+// Get returns the configuration from the given file path.
+func Get(filepath string) (*Configuration, error) {
+	var config *Configuration
+	var err error
+	var confFile []byte
+
+	confFile, err = ioutil.ReadFile(filepath)
+	if err != nil {
+		return nil, ErrNoFile
+	}
+
+	//if file exists use its variables
+	err = yaml.Unmarshal(confFile, &config)
+	if err != nil {
+		return nil, ErrParsingFile
+	}
+	return config, nil
+}
+
+// GetDefault returns the configuration from the default file path.
+func GetDefault() (*Configuration, error) {
+	return Get(defaultFilePath)
+}
