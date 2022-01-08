@@ -13,6 +13,7 @@ func RegisterRoutes(h *Handler, e *echo.Echo) {
 	apiGroup := e.Group("/api")
 
 	apiGroup.POST("/users", h.RegisterUser)
+	apiGroup.POST("/users/signin", h.Signin)
 
 	for _, r := range e.Routes() {
 		log.Printf("[%s] %s", r.Method, r.Path)

@@ -1,32 +1,32 @@
-import Vue from 'vue'
-import VueRouter from "vue-router"
+import Vue from "vue";
+import VueRouter from "vue-router";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
-const registerPage = ()=> import("./pages/registration.vue")
-const dashboardPage = ()=> import("./pages/dashboard.vue")
-const loginPage = ()=> import("./pages/login.vue")
+const registerPage = () => import("./pages/registration.vue");
+const dashboardPage = () => import("./pages/dashboard.vue");
+const loginPage = () => import("./pages/login.vue");
 
 const routes = [
-    {
-        path: "/",
-        component: dashboardPage,
-        meta:{
-            protected: true
-        }
+  {
+    path: "/",
+    component: dashboardPage,
+    meta: {
+      protected: true,
     },
-    {
-        path: "/register",
-        component: registerPage
-    },
-    {
-        path: "/login",
-        component: loginPage
-    }
-]
+  },
+  {
+    path: "/register",
+    component: registerPage,
+  },
+  {
+    path: "/login",
+    component: loginPage,
+  },
+];
 
 const router = new VueRouter({
-    routes
-})
+  routes,
+});
 
-export default router
+export default router;

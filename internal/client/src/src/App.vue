@@ -1,12 +1,49 @@
 <template>
   <div id="app">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Finechat</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item" v-if="isAuthenticated">
+              <a class="nav-link active" aria-current="page" href="#">Home</a>
+            </li>
+            <li class="nav-item" v-if="isAuthenticated">
+              <a class="nav-link" href="#">Signout</a>
+            </li>
+            <li class="nav-item" v-if="!isAuthenticated">
+              <a class="nav-link" href="#/login">Sign in</a>
+            </li>
+            <li class="nav-item" v-if="!isAuthenticated">
+              <a class="nav-link" href="#/register">Register</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-
 export default {
-  name: 'App',
-}
+  name: "App",
+  computed: {
+    isAuthenticated() {
+      const token = this.$store.state.auth.token;
+      return typeof token != "undefined" && token != "";
+    },
+  },
+};
 </script>
