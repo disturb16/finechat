@@ -15,6 +15,7 @@ type Repository interface {
 type Service interface {
 	RegisterUser(ctx context.Context, firstName, lastName, email, password string) error
 	LoginUser(ctx context.Context, email, password string) (string, error)
+	FindUserByEmail(ctx context.Context, email string) (*models.User, error)
 }
 
 func NewRepository(db *sqlx.DB) Repository {

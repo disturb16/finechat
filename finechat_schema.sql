@@ -216,7 +216,7 @@ CREATE PROCEDURE `saveChatRoom` (
     in pi_userId int
 )
 BEGIN
-	INSERT INTO chatroom (name, user_id) VALUES (pi_name, pi_userId);
+	INSERT INTO CHATROOMS(name, user_id) VALUES (pi_name, pi_userId);
 END$$
 
 DELIMITER ;
@@ -259,6 +259,23 @@ CREATE PROCEDURE `saveChatRoomMessage` (
 BEGIN
 	INSERT INTO CHATROOM_MESSAGES (chatroom_id, user_id, message)
 		VALUES(pi_chatRoomId, pi_userId, pi_message);
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure saveChatRoomUser
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `finechat`$$
+CREATE PROCEDURE `saveChatRoomUser` (
+	in pi_chatRoomId int,
+    in pi_userId int
+)
+BEGIN
+	INSERT INTO CHATROOM_USERS(chatroom_id, user_id)
+		VALUES (pi_chatRoomId, pi_userId);
 END$$
 
 DELIMITER ;

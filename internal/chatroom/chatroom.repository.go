@@ -24,9 +24,9 @@ func (r *ChatRoomRepository) SaveChatRoom(ctx context.Context, name string, user
 	return err
 }
 
-func (r *ChatRoomRepository) GetChatRooms(ctx context.Context, userId int64) ([]models.ChatRoom, error) {
+func (r *ChatRoomRepository) GetChatRooms(ctx context.Context, email string) ([]models.ChatRoom, error) {
 	chatRooms := []models.ChatRoom{}
-	err := r.db.SelectContext(ctx, &chatRooms, qryGetChatRoomsByUser, userId)
+	err := r.db.SelectContext(ctx, &chatRooms, qryGetChatRoomsByUser, email)
 	return chatRooms, err
 }
 

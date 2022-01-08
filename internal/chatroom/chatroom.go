@@ -13,7 +13,7 @@ type Repository interface {
 	// SaveChatRoomMessage saves the message in the chat room.
 	SaveChatRoomMessage(ctx context.Context, chatRoomId int64, userId int64, message string) error
 	// GetChatRooms returns all chat rooms for the user.
-	GetChatRooms(ctx context.Context, userId int64) ([]models.ChatRoom, error)
+	GetChatRooms(ctx context.Context, email string) ([]models.ChatRoom, error)
 	// GetChatRoomMessages returns the last 50 messages for the chat room.
 	GetChatRoomMessages(ctx context.Context, chatRoomId int64) ([]models.ChatRoomMessage, error)
 
@@ -22,7 +22,7 @@ type Repository interface {
 
 type Service interface {
 	CreateChatRoom(ctx context.Context, name string, userID int64) error
-	ListChatRooms(ctx context.Context, userId int64) ([]models.ChatRoom, error)
+	ListChatRooms(ctx context.Context, email string) ([]models.ChatRoom, error)
 	ListChatRoomMessages(ctx context.Context, chatRoomId int64) ([]models.ChatRoomMessage, error)
 	PostChatRoomMessage(ctx context.Context, chatRoomId int64, userId int64, message string) error
 	AddChatRoomGuest(ctx context.Context, chatRoomId int64, userId int64) error

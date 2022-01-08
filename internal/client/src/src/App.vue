@@ -41,8 +41,7 @@ export default {
   name: "App",
   computed: {
     isAuthenticated() {
-      const token = this.$store.state.auth.token;
-      return typeof token != "undefined" && token != "";
+      return this.$store.getters.isAuthenticated;
     },
   },
 };

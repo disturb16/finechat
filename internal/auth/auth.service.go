@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/disturb16/finechat/internal/auth/models"
 	"github.com/disturb16/finechat/tokenparser"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -46,4 +47,13 @@ func (s *AuthService) LoginUser(ctx context.Context, email, password string) (st
 
 	name := fmt.Sprintf("%s %s", u.FirstName, u.LastName)
 	return tokenparser.CreateAuthToken(u.Email, name)
+}
+
+func (s *AuthService) FindUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	u, err := s.repo.FindUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	return u.ToUser(), nil
 }

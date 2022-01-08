@@ -14,8 +14,8 @@ func (s *ChatRoomService) CreateChatRoom(ctx context.Context, name string, userI
 	return s.repo.SaveChatRoom(ctx, name, userID)
 }
 
-func (s *ChatRoomService) ListChatRooms(ctx context.Context, userId int64) ([]models.ChatRoom, error) {
-	return s.repo.GetChatRooms(ctx, userId)
+func (s *ChatRoomService) ListChatRooms(ctx context.Context, email string) ([]models.ChatRoom, error) {
+	return s.repo.GetChatRooms(ctx, email)
 }
 
 func (s *ChatRoomService) ListChatRoomMessages(ctx context.Context, chatRoomId int64) ([]models.ChatRoomMessage, error) {

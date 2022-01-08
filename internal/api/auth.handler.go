@@ -17,14 +17,19 @@ type AuthResponse struct {
 
 func (h *Handler) RegisterUser(c echo.Context) error {
 	ctx := c.Request().Context()
-	u := &dtos.RegisterUser{}
+	params := &dtos.RegisterUser{}
 
-	err := decodeBody(c, u)
+	err := decodeBody(c, params)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrInvalidRequest)
+	}
+
+	err = h.validate.Struct(params)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, parseDTOError(err))
 	}
 
-	err = h.authService.RegisterUser(ctx, u.FirstName, u.LastName, u.Email, u.Password)
+	err = h.authService.RegisterUser(ctx, params.FirstName, params.LastName, params.Email, params.Password)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrInternalServer)
 	}
@@ -34,15 +39,19 @@ func (h *Handler) RegisterUser(c echo.Context) error {
 
 func (h *Handler) Signin(c echo.Context) error {
 	ctx := c.Request().Context()
+	params := &dtos.Sigin{}
 
-	creds := &dtos.Sigin{}
+	err := decodeBody(c, params)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrInvalidRequest)
+	}
 
-	err := decodeBody(c, creds)
+	err = h.validate.Struct(params)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, parseDTOError(err))
 	}
 
-	token, err := h.authService.LoginUser(ctx, creds.Email, creds.Password)
+	token, err := h.authService.LoginUser(ctx, params.Email, params.Password)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrInternalServer)
 	}

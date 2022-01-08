@@ -10,10 +10,13 @@ func RegisterRoutes(h *Handler, e *echo.Echo) {
 	e.Use(RequestLogger)
 	e.Use(EnrichContext)
 
-	apiGroup := e.Group("/api")
+	usersAPI := e.Group("/api/users")
+	usersAPI.POST("", h.RegisterUser)
+	usersAPI.POST("/signin", h.Signin)
+	usersAPI.GET("/:email/chatrooms", h.chatRoomsByUser)
 
-	apiGroup.POST("/users", h.RegisterUser)
-	apiGroup.POST("/users/signin", h.Signin)
+	chatroomsAPI := e.Group("/api/chatrooms")
+	chatroomsAPI.POST("", h.createChatRoom)
 
 	for _, r := range e.Routes() {
 		log.Printf("[%s] %s", r.Method, r.Path)
