@@ -1,3 +1,2 @@
 .vscode
-config*.yml
 internal/client/dist

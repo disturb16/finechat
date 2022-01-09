@@ -1,0 +1,59 @@
+<template>
+  <div>
+    <h1>New Chatroom</h1>
+    <form>
+      <div class="mb-4">
+        <label for="name" class="form-label">Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="name"
+          v-model="chatroomName"
+        />
+      </div>
+    </form>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      @click.prevent="createChatRoom"
+    >
+      Save
+    </button>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+
+export default {
+  name: "CreateChatroom",
+  data() {
+    return {
+      chatroomName: "",
+    };
+  },
+  methods: {
+    async createChatRoom() {
+      if (this.chatroomName == "") {
+        return;
+      }
+
+      const { email } = this.$store.getters.tokenClaims;
+
+      const data = {
+        email,
+        name: this.chatroomName,
+      };
+
+      try {
+        await axios.post("/api/chatrooms", data);
+        this.$store.dispatch("fetchChatRooms");
+        this.$router.push("/");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  },
+};
+</script>

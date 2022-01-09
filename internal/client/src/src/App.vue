@@ -20,7 +20,7 @@
               <a class="nav-link active" aria-current="page" href="#">Home</a>
             </li>
             <li class="nav-item" v-if="isAuthenticated">
-              <a class="nav-link" href="#">Signout</a>
+              <a class="nav-link" href="#" @click.prevent="signout">Signout</a>
             </li>
             <li class="nav-item" v-if="!isAuthenticated">
               <a class="nav-link" href="#/login">Sign in</a>
@@ -39,6 +39,13 @@
 <script>
 export default {
   name: "App",
+  methods: {
+    signout() {
+      if (this.isAuthenticated) {
+        location.reload();
+      }
+    },
+  },
   computed: {
     isAuthenticated() {
       return this.$store.getters.isAuthenticated;

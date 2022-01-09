@@ -22,16 +22,11 @@
               aria-labelledby="panelsStayOpen-headingOne"
             >
               <div class="accordion-body">
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  data-bs-toggle="modal"
-                  data-bs-target="#crModal"
+                <router-link class="btn btn-primary" to="/chatrooms/create"
+                  >New</router-link
                 >
-                  create chatroom
-                </button>
-                <ul>
-                  <li v-for="cr in chatrooms" :key="cr.id">
+                <ul class="list-item">
+                  <li v-for="cr in chatRooms" :key="cr.id">
                     <router-link :to="chatRoomUrl(cr.id)">{{
                       cr.name
                     }}</router-link>
@@ -40,6 +35,36 @@
               </div>
             </div>
           </div>
+          <!-- <div class="accordion-item">
+            <h2 class="accordion-header" id="friends-panel">
+              <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#friends-panel-collapseOne"
+                aria-controls="friends-panel-collapseOne"
+              >
+                Friends
+              </button>
+            </h2>
+            <div
+              id="friends-panel-collapseOne"
+              class="accordion-collapse collapse"
+              aria-labelledby="friends-panel"
+            >
+              <div class="accordion-body">
+                <router-link class="btn btn-primary" to="/friends/add"
+                  >Add</router-link
+                >
+
+                <ul>
+                  <li class="list-item" v-for="f in friends" :key="f.email">
+                    {{ f.name }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div> -->
         </div>
       </nav>
     </aside>
@@ -47,119 +72,31 @@
     <section>
       <router-view></router-view>
     </section>
-
-    <!-- Modal -->
-    <div
-      class="modal fade"
-      id="crModal"
-      tabindex="-1"
-      aria-labelledby="createChatRoomModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="createChatRoomModalLabel">
-              New Chatroom
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="mb-4">
-                <label for="name" class="form-label">Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="name"
-                  v-model="chatroomName"
-                />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              @click.prevent="createChatRoom"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import { Modal } from "bootstrap";
-
 export default {
   name: "Dashboard",
-  data() {
-    return {
-      chatrooms: [],
-      chatroomName: "",
-      modal: null,
-    };
-  },
 
   async created() {
-    this.getChatRooms();
+    this.$store.dispatch("fetchChatRooms");
+    this.$store.dispatch("fetchFriends");
   },
 
   methods: {
     chatRoomUrl(id) {
-      return `/chatroom/${id}`;
+      return `/chatrooms/${id}`;
+    },
+  },
+
+  computed: {
+    chatRooms() {
+      return this.$store.state.chatRooms;
     },
 
-    async getChatRooms() {
-      const { email } = this.$store.getters.tokenClaims;
-
-      try {
-        const url = `/api/users/${email}/chatrooms`;
-        const response = await axios.get(url);
-        this.chatrooms = response.data;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-
-    async createChatRoom() {
-      if (this.chatroomName == "") {
-        return;
-      }
-
-      const { email } = this.$store.getters.tokenClaims;
-
-      const data = {
-        email,
-        name: this.chatroomName,
-      };
-
-      try {
-        await axios.post("/api/chatrooms", data);
-        this.getChatRooms();
-
-        const modal = Modal.getInstance(document.getElementById("crModal"));
-        modal.toggle();
-      } catch (error) {
-        console.error(error);
-      }
+    friends() {
+      return this.$store.state.friends;
     },
   },
 };
@@ -170,10 +107,17 @@ aside,
 section {
   display: inline-block;
   vertical-align: top;
-  width: 30%;
+  width: 25%;
 }
 
 section {
-  width: 65%;
+  padding: 1em;
+  margin-left: 1em;
+  width: 70%;
+}
+
+.list-item {
+  margin-top: 0.5em;
+  padding: 1em;
 }
 </style>

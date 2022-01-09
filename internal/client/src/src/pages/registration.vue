@@ -32,11 +32,11 @@
       </div>
 
       <div class="mb-4">
-        <label for="password" class="form-label">Confirm Password</label>
+        <label for="confirmPassword" class="form-label">Confirm Password</label>
         <input
           type="password"
           class="form-control"
-          id="password"
+          id="confirmPassword"
           v-model="confirmPassword"
         />
       </div>

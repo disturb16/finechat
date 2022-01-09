@@ -1,0 +1,9 @@
+Application:
+  debug: true
+  port: 8080
+Database:
+  host: db
+  port: 3306
+  name: finechat
+  user: root
+  password: 1234

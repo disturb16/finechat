@@ -12,9 +12,11 @@ type AuthRepository struct {
 }
 
 const (
-	hasCost        int    = 12
-	qrySaveUser    string = `call saveUser(?, ?, ?, ?)`
-	qryFindByEmail string = `call getUserByEmail(?)`
+	hasCost           int    = 12
+	qrySaveUser       string = `call saveUser(?, ?, ?, ?)`
+	qryFindByEmail    string = `call getUserByEmail(?)`
+	qrySaveFriend     string = `call saveFriend(?, ?)`
+	qryGetUserFriends string = `call getUserFriends(?)`
 )
 
 func (r *AuthRepository) SaveUser(
@@ -42,4 +44,36 @@ func (r *AuthRepository) FindUserByEmail(
 
 	err := r.db.GetContext(ctx, u, qryFindByEmail, email)
 	return u, err
+}
+
+func (r *AuthRepository) SaveFriend(
+	ctx context.Context,
+	email, friendEmail string,
+) error {
+
+	_, err := r.db.ExecContext(
+		ctx,
+		qrySaveFriend,
+		email,
+		friendEmail,
+	)
+
+	return err
+}
+
+func (r *AuthRepository) ListFriends(
+	ctx context.Context,
+	email string,
+) ([]*models.User, error) {
+
+	friends := []*models.User{}
+
+	err := r.db.SelectContext(
+		ctx,
+		&friends,
+		qryGetUserFriends,
+		email,
+	)
+
+	return friends, err
 }

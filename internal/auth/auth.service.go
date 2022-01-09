@@ -57,3 +57,11 @@ func (s *AuthService) FindUserByEmail(ctx context.Context, email string) (*model
 
 	return u.ToUser(), nil
 }
+
+func (s *AuthService) AddFriend(ctx context.Context, email, friendEmail string) error {
+	return s.repo.SaveFriend(ctx, email, friendEmail)
+}
+
+func (s *AuthService) ListFriends(ctx context.Context, email string) ([]*models.User, error) {
+	return s.repo.ListFriends(ctx, email)
+}

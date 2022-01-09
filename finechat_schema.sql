@@ -129,17 +129,20 @@ USE `finechat` ;
 DELIMITER $$
 USE `finechat`$$
 CREATE PROCEDURE `getChatRoomsByUser` (
-	in pi_userId int
+	in pi_email varchar(50)
 )
 BEGIN
 	SELECT
 		cr.id,
 		cr.name
 	FROM CHATROOMS cr
-	INNER JOIN CHATROOM_USERS cru
-			ON cru.chatroom_id = cr.id
-	WHERE cru.user_id = pi_userId
-      AND cru.permission_id = 1;
+	LEFT JOIN CHATROOM_GUESTS crg
+			ON crg.chatroom_id = cr.id
+	LEFT JOIN USERS u
+			ON u.id = cr.user_id
+		    OR u.id = crg.user_id
+	WHERE u.email = pi_email
+	  AND u.enabled = 1;
 END$$
 
 DELIMITER ;
@@ -155,8 +158,9 @@ CREATE PROCEDURE `getChatroomUsers` (
 )
 BEGIN
 	SELECT
-		u.name
-    FROM CHATROOM_USERS cru
+		u.email,
+		CONCAT(u.first_name, ' ', u.last_name) as name
+    FROM CHATROOM_GUESTS cru
 	INNER JOIN USERS u
 			ON u.id = cru.user_id
 	WHERE cru.chatroom_id = pi_chatroomId;
@@ -232,9 +236,10 @@ CREATE PROCEDURE `getChatRoomMessages` (
 )
 BEGIN
 	SELECT
-		message,
+		crm.message,
         u.id as user_id,
-        CONCAT(u.first_name, u.last_name) as user_name
+        CONCAT(u.first_name, ' ', u.last_name) as user,
+        crm.created_date
 	FROM CHATROOM_MESSAGES crm
     INNER JOIN USERS u
 			ON crm.user_id = u.id
@@ -254,11 +259,12 @@ USE `finechat`$$
 CREATE PROCEDURE `saveChatRoomMessage` (
 	in pi_chatRoomId int,
     in pi_userId int,
-    in pi_message varchar(500)
+    in pi_message varchar(500),
+    in pi_createdDate datetime
 )
 BEGIN
-	INSERT INTO CHATROOM_MESSAGES (chatroom_id, user_id, message)
-		VALUES(pi_chatRoomId, pi_userId, pi_message);
+	INSERT INTO CHATROOM_MESSAGES (chatroom_id, user_id, message, created_date)
+		VALUES(pi_chatRoomId, pi_userId, pi_message, pi_createdDate);
 END$$
 
 DELIMITER ;
@@ -274,8 +280,51 @@ CREATE PROCEDURE `saveChatRoomUser` (
     in pi_userId int
 )
 BEGIN
-	INSERT INTO CHATROOM_USERS(chatroom_id, user_id)
+	INSERT INTO CHATROOM_GUESTS(chatroom_id, user_id)
 		VALUES (pi_chatRoomId, pi_userId);
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure saveFriend
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `finechat`$$
+CREATE PROCEDURE `saveFriend` (
+	in pi_email varchar(50),
+    in pi_friendEmail varchar(50)
+)
+BEGIN
+	select @userId := id from USERS where email = pi_email and enabled =1;
+    select @friendId := id from USERS where email = pi_friendEmail and enabled =1;
+
+	INSERT INTO USER_FRIENDS (user_id, friend_id)
+		VALUES(@userId, @friendId);
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure getUserFriends
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `finechat`$$
+CREATE PROCEDURE `getUserFriends` (
+	in pi_email varchar(50)
+)
+BEGIN
+	SELECT
+		 u.email,
+		 u.first_name,
+		 u.last_name
+	FROM USER_FRIENDS uf
+	INNER JOIN USERS u
+			ON u.id  = uf.friend_id
+		   AND u.enabled = 1
+	WHERE uf.user_id = (select id from USERS where email = pi_email and enabled =1);
 END$$
 
 DELIMITER ;
