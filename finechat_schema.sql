@@ -329,6 +329,24 @@ END$$
 
 DELIMITER ;
 
+-- -----------------------------------------------------
+-- procedure removeChatRoomUser
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `finechat`$$
+CREATE PROCEDURE `removeChatRoomUser` (
+	in pi_chatRoomId int,
+	in pi_email varchar(50)
+)
+BEGIN
+	DELETE FROM CHATROOM_GUESTS
+    WHERE chatroom_id = pi_chatRoomId
+      AND user_id = (SELECT id FROM USERS WHERE email = pi_email);
+END$$
+
+DELIMITER ;
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

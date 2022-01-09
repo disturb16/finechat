@@ -20,6 +20,8 @@ type Repository interface {
 
 	SaveChatRoomUser(ctx context.Context, chatRoomId int64, userId int64) error
 	GetChatRoomUsers(ctx context.Context, chatRoomId int64) ([]models.ChatRoomUser, error)
+
+	RemoveChatRoomGuest(ctx context.Context, chatRoomId int64, email string) error
 }
 
 type Service interface {
@@ -29,6 +31,7 @@ type Service interface {
 	PostChatRoomMessage(ctx context.Context, chatRoomId int64, userId int64, message string, createdDate time.Time) error
 	AddChatRoomGuest(ctx context.Context, chatRoomId int64, userId int64) error
 	ListChatRoomGuests(ctx context.Context, chatRoomId int64) ([]models.ChatRoomUser, error)
+	RemoveChatRoomGuest(ctx context.Context, chatRoomId int64, email string) error
 }
 
 func NewRepository(db *sqlx.DB) Repository {

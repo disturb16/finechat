@@ -184,3 +184,32 @@ func (h *Handler) chatRoomUsers(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, users)
 }
+
+func (h *Handler) removeChatRoomUser(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	params := &dtos.RemoveChatRoomUser{
+		Email: c.Param("email"),
+	}
+
+	chatRoomIDStr := c.Param("chatRoomId")
+	chatRoomID, err := strconv.ParseInt(chatRoomIDStr, 10, 64)
+	if err != nil {
+		logger.Println(ctx, "error parsing chatroom id", err)
+		return c.JSON(http.StatusBadRequest, ErrInvalidRequest)
+	}
+
+	err = h.validate.Struct(params)
+	if err != nil {
+		logger.Println(ctx, err)
+		return c.JSON(http.StatusBadRequest, parseDTOError(err))
+	}
+
+	err = h.chatRoomService.RemoveChatRoomGuest(ctx, chatRoomID, params.Email)
+	if err != nil {
+		logger.Println(ctx, "error removing chatroom user", err)
+		return c.JSON(http.StatusInternalServerError, ErrInternalServer)
+	}
+
+	return c.NoContent(http.StatusOK)
+}

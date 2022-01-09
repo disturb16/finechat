@@ -41,7 +41,8 @@
 
       <ul>
         <li v-for="u in chatRoomUsers" :key="u.email">
-          {{ u.name }} <a href="#"> remove</a>
+          {{ u.name }}
+          <a href="#" @click.prevent="removeParticipant(u.email)"> remove</a>
         </li>
       </ul>
     </aside>
@@ -184,6 +185,18 @@ export default {
 
         this.newParticipantEmail = "";
         this.modal.hide();
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async removeParticipant(email) {
+      try {
+        const url = `/api/chatrooms/${this.chatRoomId}/users/${email}`;
+
+        await axios.delete(url);
+
+        this.fetcheChatRoomUsers(this.chatRoomId);
       } catch (error) {
         console.error(error);
       }

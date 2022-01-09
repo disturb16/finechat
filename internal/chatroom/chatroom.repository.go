@@ -19,6 +19,7 @@ const (
 	qrySaveChatRoomMessage string = `call saveChatRoomMessage(?, ?, ?, ?)`
 	qrySaveChatRoomUser    string = `call saveChatRoomUser(?, ?)`
 	qryGetChatRoomUsers    string = `call getChatRoomUsers(?)`
+	qryRemoveChatRoomUser  string = `call removeChatRoomUser(?, ?)`
 )
 
 func (r *ChatRoomRepository) SaveChatRoom(ctx context.Context, name string, userID int64) error {
@@ -52,4 +53,9 @@ func (r *ChatRoomRepository) GetChatRoomUsers(ctx context.Context, chatRoomId in
 	users := []models.ChatRoomUser{}
 	err := r.db.SelectContext(ctx, &users, qryGetChatRoomUsers, chatRoomId)
 	return users, err
+}
+
+func (r *ChatRoomRepository) RemoveChatRoomGuest(ctx context.Context, chatRoomId int64, email string) error {
+	_, err := r.db.ExecContext(ctx, qryRemoveChatRoomUser, chatRoomId, email)
+	return err
 }

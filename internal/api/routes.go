@@ -29,6 +29,7 @@ func RegisterRoutes(h *Handler, e *echo.Echo) {
 	chatroomsAPI.GET("/:chatRoomId/messages", h.chatRoomMessages)
 	chatroomsAPI.POST("/:chatRoomId/users", h.createChatRoomUser)
 	chatroomsAPI.GET("/:chatRoomId/users", h.chatRoomUsers)
+	chatroomsAPI.DELETE("/:chatRoomId/users/:email", h.removeChatRoomUser)
 
 	for _, r := range e.Routes() {
 		log.Printf("[%s] %s", r.Method, r.Path)

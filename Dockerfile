@@ -9,20 +9,32 @@ ARG swagger_host
 ARG project
 
 RUN apk update
-RUN apk add --no-cache git alpine-sdk upx
+RUN apk add --no-cache \
+    git \
+    alpine-sdk \
+    upx \
+    nodejs \
+    npm
 
+# Install go pacakge dependencies.
 WORKDIR /${project}
-
-
-# Install pacakge dependencies.
 COPY ["go.mod", "go.sum", "./"]
 RUN go mod download -x
 
-# Copy the rest of the project,
-# if there are files to ignore
-# please add them to the .dockerignore.
+# Install frontend dependencies.
+WORKDIR /${project}/internal/client/src
+COPY ["internal/client/src/package*.json", "./"]
+RUN npm install
+
+# Copy the rest of the project
+WORKDIR /${project}
 COPY . .
 
+# build frontend app
+WORKDIR /${project}/internal/client/src
+RUN npm run build
+
+WORKDIR /${project}
 RUN go build -o ./${project} \
     && upx ./${project}
 

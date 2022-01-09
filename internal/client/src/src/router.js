@@ -10,7 +10,13 @@ const createChatroomPage = () => import("./pages/dashboard/createChatroom.vue");
 const chatroomPage = () => import("./pages/dashboard/chatroom.vue");
 const addFriendPage = () => import("./pages/dashboard/addFriend.vue");
 
+const amqpPage = () => import("./pages/amqp.vue");
+
 const routes = [
+  {
+    path: "/amqp",
+    component: amqpPage,
+  },
   {
     path: "/",
     component: dashboardPage,

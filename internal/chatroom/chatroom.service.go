@@ -34,3 +34,7 @@ func (s *ChatRoomService) AddChatRoomGuest(ctx context.Context, chatRoomId int64
 func (s *ChatRoomService) ListChatRoomGuests(ctx context.Context, chatRoomId int64) ([]models.ChatRoomUser, error) {
 	return s.repo.GetChatRoomUsers(ctx, chatRoomId)
 }
+
+func (s *ChatRoomService) RemoveChatRoomGuest(ctx context.Context, chatRoomId int64, email string) error {
+	return s.repo.RemoveChatRoomGuest(ctx, chatRoomId, email)
+}
