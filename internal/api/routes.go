@@ -16,7 +16,7 @@ func RegisterRoutes(h *Handler, e *echo.Echo) {
 		return c.String(200, "OK")
 	})
 
-	e.GET("/ws/:chatRoomId", h.socket)
+	e.GET("/ws/:chatRoomId/email/:email", h.subscribeToChatroomSocket)
 
 	// ======= USERS ENDPOINTS =======
 	usersAPI := e.Group("/api/users")

@@ -15,10 +15,18 @@ type Application struct {
 	Port  int  `yaml:"port"`
 }
 
+type RabbitMQConfiguration struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+}
+
 // Configuration represents the configuration of the application.
 type Configuration struct {
-	App Application                    `yaml:"Application"`
-	DB  database.DatabaseConfiguration `yaml:"Database"`
+	App      Application                    `yaml:"Application"`
+	DB       database.DatabaseConfiguration `yaml:"Database"`
+	RabbitMQ RabbitMQConfiguration          `yaml:"RabbitMQ"`
 }
 
 const defaultFilePath = "configuration.yml"

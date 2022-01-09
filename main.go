@@ -6,10 +6,12 @@ import (
 	"log"
 	"sync"
 
+	"github.com/disturb16/finechat/broker"
 	"github.com/disturb16/finechat/configuration"
 	"github.com/disturb16/finechat/database"
 	"github.com/disturb16/finechat/internal/api"
 	"github.com/disturb16/finechat/internal/auth"
+
 	"github.com/disturb16/finechat/internal/chatroom"
 	"github.com/disturb16/finechat/internal/client"
 	"github.com/jmoiron/sqlx"
@@ -28,6 +30,7 @@ func main() {
 			chatroom.NewRepository,
 			chatroom.NewService,
 			echo.New,
+			broker.New,
 			api.NewHandler,
 		),
 

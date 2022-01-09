@@ -95,6 +95,7 @@ export default {
   props: ["chatRoomId"],
   data() {
     return {
+      socket: null,
       modal: null,
       messages: [],
       messageContent: "",
@@ -104,6 +105,7 @@ export default {
   },
 
   created() {
+    this.setupWebsocket();
     this.getMessages(this.chatRoomId);
     this.fetcheChatRoomUsers(this.chatRoomId);
   },
@@ -201,11 +203,49 @@ export default {
         console.error(error);
       }
     },
+
+    setupWebsocket() {
+      const loc = window.location;
+      let uri = loc.protocol === "https:" ? "wss:" : "ws:";
+      const { email } = this.$store.getters.tokenClaims;
+      uri += `//${loc.host}/ws/${this.chatRoomId}/email/${email}`;
+
+      if (this.socket != null) {
+        this.socket.close();
+        this.socket = null;
+      }
+
+      this.socket = new WebSocket(uri);
+
+      // Connection opened
+      this.socket.addEventListener("open", () => {
+        console.log("Connected to chatroom stream");
+      });
+
+      // Listen for messages
+      this.socket.addEventListener("message", (event) => {
+        const data = JSON.parse(event.data);
+
+        switch (data.type) {
+          case "reload":
+            this.getMessages(this.chatRoomId);
+            break;
+
+          case "show_stock":
+            // this.showStock(data.stock);
+            break;
+
+          default:
+            break;
+        }
+      });
+    },
   },
   watch: {
     chatRoomId(newChatRoomId) {
       this.getMessages(newChatRoomId);
       this.fetcheChatRoomUsers(newChatRoomId);
+      this.setupWebsocket();
     },
   },
 };
