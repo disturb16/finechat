@@ -14,7 +14,8 @@ const amqpPage = () => import("./pages/amqp.vue");
 
 const routes = [
   {
-    path: "/amqp",
+    path: "/amqp/:chatRoomId",
+    props: true,
     component: amqpPage,
   },
   {

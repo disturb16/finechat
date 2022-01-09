@@ -4,15 +4,19 @@ import (
 	"log"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func RegisterRoutes(h *Handler, e *echo.Echo) {
 	e.Use(RequestLogger)
 	e.Use(EnrichContext)
+	e.Use(middleware.CORS())
 
 	e.GET("/healthcheck", func(c echo.Context) error {
 		return c.String(200, "OK")
 	})
+
+	e.GET("/ws/:chatRoomId", h.socket)
 
 	// ======= USERS ENDPOINTS =======
 	usersAPI := e.Group("/api/users")

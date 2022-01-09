@@ -1,47 +1,38 @@
 <template>
   <div>
     {{ message }}
+
+    <button @click.prevent="socket.send('Hello there')">Send Message</button>
   </div>
 </template>
 
 <script>
-import amqp from "amqplib/callback_api";
-
 export default {
   name: "amqp",
+  props: ["chatRoomId"],
   data() {
     return {
+      socket: null,
       message: "Hello AMQP!",
     };
   },
 
   created() {
-    amqp.connect("amqp://localhost", function (error0, connection) {
-      if (error0) {
-        throw error0;
-      }
+    const loc = window.location;
+    let uri = loc.protocol === "https:" ? "wss:" : "ws:";
 
-      connection.createChannel(function (error1, channel) {
-        if (error1) {
-          throw error1;
-        }
+    uri += `//${loc.host}/ws/${this.chatRoomId}`;
+    this.socket = new WebSocket(uri);
 
-        var queue = "hello";
+    // Connection opened
+    this.socket.addEventListener("open", (event) => {
+      console.log(event);
+      this.socket.send("Hello Server!");
+    });
 
-        channel.assertQueue(queue, {
-          durable: false,
-        });
-
-        channel.consume(
-          queue,
-          (msg) => {
-            console.log(" [x] Received %s", msg.content.toString());
-          },
-          {
-            noAck: true,
-          }
-        );
-      });
+    // Listen for messages
+    this.socket.addEventListener("message", (event) => {
+      console.log("Message from server ", event.data);
     });
   },
 };
