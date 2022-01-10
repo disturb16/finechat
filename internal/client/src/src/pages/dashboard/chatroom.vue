@@ -4,8 +4,15 @@
       <div id="wrap">
         <div id="main" class="container clear-top">
           <div class="message" v-for="(m, i) in messages" :key="i">
-            <div class="message-owner">{{ m.user }}</div>
-            <div class="message-text">{{ m.message }}</div>
+            <div class="message-header row">
+              <div class="message-owner col">
+                {{ m.user }}
+              </div>
+              <div class="message-date col justify-content-end">
+                {{ new Date(m.created_date).toLocaleString("en-US") }}
+              </div>
+            </div>
+            <div class="message-text row">{{ m.message }}</div>
           </div>
         </div>
       </div>
@@ -17,7 +24,17 @@
             aria-label="With textarea"
             @keypress.enter.prevent="sendMessage"
           ></textarea>
+          <button class="btn btn-primary" type="button" disabled v-if="loading">
+            <span
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            <span class="visually-hidden">Loading...</span>
+          </button>
+
           <button
+            v-else
             class="btn btn-primary"
             type="button"
             @click.prevent="sendMessage"
@@ -47,6 +64,7 @@
       </ul>
     </aside>
 
+    <!-- Modals -->
     <div class="modal fade" id="addFriendModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -95,9 +113,11 @@ export default {
   props: ["chatRoomId"],
   data() {
     return {
+      loading: false,
       socket: null,
       modal: null,
-      messages: [],
+      chatMessages: [],
+      stockMessages: [],
       messageContent: "",
       chatRoomUsers: [{ email: "ss", name: "ss" }],
       newParticipantEmail: "",
@@ -121,35 +141,26 @@ export default {
       if (this.messageContent == "") {
         return;
       }
+      const message = this.messageContent;
+      this.loading = true;
+      this.messageContent = "";
 
       try {
-        const { name, email } = this.$store.getters.tokenClaims;
+        const { email } = this.$store.getters.tokenClaims;
 
         const url = `/api/chatrooms/${this.chatRoomId}/messages`;
         const data = {
-          message: this.messageContent,
+          message,
           email,
           created_date: new Date(),
         };
 
         await axios.post(url, data);
-
-        this.messages.push({
-          user: name,
-          message: data.message,
-          createdDate: data.created_date,
-        });
-
-        this.messages.sort((a, b) => {
-          const aDate = new Date(a.created_date);
-          const bDate = new Date(b.created_date);
-          return aDate - bDate;
-        });
-
-        this.messageContent = "";
       } catch (error) {
         console.error(error);
       }
+
+      this.loading = false;
     },
 
     async getMessages(chatRoomId) {
@@ -157,7 +168,7 @@ export default {
         const url = `/api/chatrooms/${chatRoomId}/messages`;
         const response = await axios.get(url);
 
-        this.messages = response.data;
+        this.chatMessages = response.data;
       } catch (error) {
         console.error(error);
       }
@@ -204,6 +215,14 @@ export default {
       }
     },
 
+    addStockMessage(data) {
+      this.stockMessages.push({
+        user: "Finechat",
+        message: data.payload,
+        created_date: new Date(),
+      });
+    },
+
     setupWebsocket() {
       const loc = window.location;
       let uri = loc.protocol === "https:" ? "wss:" : "ws:";
@@ -231,8 +250,8 @@ export default {
             this.getMessages(this.chatRoomId);
             break;
 
-          case "show_stock":
-            // this.showStock(data.stock);
+          case "stock_request":
+            this.addStockMessage(data);
             break;
 
           default:
@@ -243,9 +262,25 @@ export default {
   },
   watch: {
     chatRoomId(newChatRoomId) {
+      this.stockMessages = [];
       this.getMessages(newChatRoomId);
       this.fetcheChatRoomUsers(newChatRoomId);
       this.setupWebsocket();
+    },
+  },
+
+  computed: {
+    messages() {
+      const merged = [...this.chatMessages, ...this.stockMessages];
+
+      merged.sort((a, b) => {
+        const aDate = new Date(a.created_date);
+        const bDate = new Date(b.created_date);
+
+        return bDate.getTime() - aDate.getTime();
+      });
+
+      return merged;
     },
   },
 };
@@ -294,14 +329,18 @@ aside {
   margin-bottom: 1em;
 }
 
+.message-text,
+.message-header {
+  padding: 0.5em;
+  border-radius: 0.5em;
+  background-color: #f5f5f5;
+}
+
 .message-owner {
   font-weight: bold;
 }
 
-.message-text,
-.message-owner {
-  padding: 0.5em;
-  border-radius: 0.5em;
-  background-color: #f5f5f5;
+.message-date {
+  text-align: right;
 }
 </style>

@@ -119,3 +119,7 @@ func (b *Broker) SendMessage(exchange, key string, messageType MessageType, mess
 			Body:        []byte(body),
 		})
 }
+
+func (b *Broker) Close() error {
+	return b.conn.Close()
+}

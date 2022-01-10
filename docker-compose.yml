@@ -14,6 +14,18 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 1234
 
+  rabbitmq:
+    image: rabbitmq:3.9.12-management
+    # ports:
+      # - 5672:5672
+      # - 15672:15672
+    networks:
+      - finechat-net
+    environment:
+      RABBITMQ_DEFAULT_USER: fcuser
+      RABBITMQ_DEFAULT_PASS: 1234
+      RABBITMQ_ERLANG_COOKIE: 1234
+
   api:
     image: finechat:latest
     ports:
@@ -24,18 +36,6 @@ services:
       - source: api_config
         target: /finechat/configuration.yml
 
-  rabbitmq:
-    image: rabbitmq:3.9.12-management
-    ports:
-      - 5672:5672
-      - 15672:15672
-    networks:
-      - finechat-net
-    environment:
-      RABBITMQ_DEFAULT_USER: finechat
-      RABBITMQ_DEFAULT_PASS: 1234
-      # RABBITMQ_DEFAULT_VHOST: finechat
-      RABBITMQ_ERLANG_COOKIE: 1234
 configs:
   api_config:
     file: ./configuration.yml

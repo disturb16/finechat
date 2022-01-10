@@ -53,6 +53,7 @@ func configureLifeCycle(
 	db *sqlx.DB,
 	config *configuration.Configuration,
 	e *echo.Echo,
+	b *broker.Broker,
 ) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
@@ -66,7 +67,7 @@ func configureLifeCycle(
 		},
 		OnStop: func(ctx context.Context) error {
 			wg := &sync.WaitGroup{}
-			wg.Add(1)
+			wg.Add(3)
 
 			go func() {
 				defer wg.Done()
@@ -78,10 +79,20 @@ func configureLifeCycle(
 			}()
 
 			go func() {
+				defer wg.Done()
 				log.Println("Stopping server...")
 				err := e.Shutdown(ctx)
 				if err != nil {
 					log.Println("Error shutting down server:", err)
+				}
+			}()
+
+			go func() {
+				defer wg.Done()
+				log.Println("Stopping message broker...")
+				err := b.Close()
+				if err != nil {
+					log.Println("Error shutting down message broker:", err)
 				}
 			}()
 

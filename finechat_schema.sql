@@ -258,13 +258,15 @@ DELIMITER $$
 USE `finechat`$$
 CREATE PROCEDURE `saveChatRoomMessage` (
 	in pi_chatRoomId int,
-    in pi_userId int,
+    in pi_email varchar(50),
     in pi_message varchar(500),
     in pi_createdDate datetime
 )
 BEGIN
+	SELECT @userId := id FROM USERS WHERE email = pi_email and enabled = 1;
+
 	INSERT INTO CHATROOM_MESSAGES (chatroom_id, user_id, message, created_date)
-		VALUES(pi_chatRoomId, pi_userId, pi_message, pi_createdDate);
+		VALUES(pi_chatRoomId, @userId, pi_message, pi_createdDate);
 END$$
 
 DELIMITER ;

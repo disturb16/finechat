@@ -1,14 +1,14 @@
 Application:
   debug: true
-  port: 8081
+  port: 8080
 Database:
-  host: localhost
+  host: db
   port: 3306
   name: finechat
   user: root
   password: 1234
 RabbitMQ:
-  host: 192.168.0.11
+  host: rabbitmq
   port: 5672
-  user: cfuser
+  user: fcuser
   password: 1234

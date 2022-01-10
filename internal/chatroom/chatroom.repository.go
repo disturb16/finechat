@@ -39,8 +39,8 @@ func (r *ChatRoomRepository) GetChatRoomMessages(ctx context.Context, chatRoomId
 	return messages, err
 }
 
-func (r *ChatRoomRepository) SaveChatRoomMessage(ctx context.Context, chatRoomId int64, userId int64, message string, createdDate time.Time) error {
-	_, err := r.db.ExecContext(ctx, qrySaveChatRoomMessage, chatRoomId, userId, message, createdDate)
+func (r *ChatRoomRepository) SaveChatRoomMessage(ctx context.Context, chatRoomId int64, email string, message string, createdDate time.Time) error {
+	_, err := r.db.ExecContext(ctx, qrySaveChatRoomMessage, chatRoomId, email, message, createdDate)
 	return err
 }
 

@@ -4,12 +4,20 @@ import (
 	"context"
 	"fmt"
 	"log"
+
+	"github.com/disturb16/finechat/configuration"
 )
 
 const (
 	RequestIDKey string = "x-request-id"
 	RealIPKey    string = "x-real-ip"
 )
+
+var debug bool
+
+func Setup(conif *configuration.Configuration) {
+	debug = conif.App.Debug
+}
 
 func contextArgs(ctx context.Context) []interface{} {
 	requestID, ok := ctx.Value(RequestIDKey).(string)

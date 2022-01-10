@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/disturb16/finechat/broker"
 	"github.com/disturb16/finechat/internal/api/dtos"
 	"github.com/disturb16/finechat/logger"
 	"github.com/labstack/echo/v4"
@@ -88,23 +87,11 @@ func (h *Handler) createChatRoomMessage(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, parseDTOError(err))
 	}
 
-	// Get user information.
-	user, err := h.authService.FindUserByEmail(ctx, params.Email)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, ErrInternalServer)
-	}
-
 	// Save message.
-	err = h.chatRoomService.PostChatRoomMessage(ctx, chatRoomID, user.ID, params.Message, params.CreatedDate)
+	err = h.chatRoomService.PostChatRoomMessage(ctx, chatRoomID, params.Email, params.Message, params.CreatedDate)
 	if err != nil {
 		logger.Println(ctx, "error posting chatroom message", err)
 		return c.JSON(http.StatusInternalServerError, ErrInternalServer)
-	}
-
-	exchange := "chatroom." + chatRoomIDStr
-	err = h.messageBroker.SendMessage(exchange, exchange, broker.TypeReload, "")
-	if err != nil {
-		logger.Println(ctx, "error sending message to broker", err)
 	}
 
 	return c.JSON(http.StatusOK, &messageResponse{"message posted"})
