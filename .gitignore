@@ -1,3 +1,2 @@
 .vscode
-internal/client/dist
 internal/client/src/node_modules
