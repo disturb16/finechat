@@ -3,21 +3,19 @@ package chatroom
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/disturb16/finechat/broker"
 	"github.com/disturb16/finechat/internal/chatroom/models"
-	"github.com/disturb16/finechat/stockhelper"
+	"github.com/disturb16/finechat/internal/finechatbot"
+
 	"github.com/gorilla/websocket"
 )
 
 type ChatRoomService struct {
 	repo   Repository
 	broker *broker.Broker
-}
-
-func messageIsCommand(message string) bool {
-	return message[0] == '/'
 }
 
 func (s *ChatRoomService) CreateChatRoom(ctx context.Context, name string, userID int64) error {
@@ -34,17 +32,31 @@ func (s *ChatRoomService) ListChatRoomMessages(ctx context.Context, chatRoomId i
 
 func (s *ChatRoomService) PostChatRoomMessage(ctx context.Context, chatRoomId int64, email string, message string, createdDate time.Time) error {
 
-	exchange := fmt.Sprintf("chatroom.%d", chatRoomId)
+	// If the message starts with / then it is a command
+	// else is a normal message.
+	if strings.HasPrefix(message, "/") {
+		payload := &finechatbot.StockCommand{
+			Email:      email,
+			ChatRoomID: chatRoomId,
+			Message:    message,
+		}
 
-	if messageIsCommand(message) {
-		return s.processStockCommand(exchange, chatRoomId, email, message)
+		return s.broker.SendMessage(
+			finechatbot.StockCommandTopic,
+			"",
+			broker.TypeStockRequest,
+			payload,
+		)
 	}
 
+	// Save message to database.
 	err := s.repo.SaveChatRoomMessage(ctx, chatRoomId, email, message, createdDate)
 	if err != nil {
 		return err
 	}
 
+	// Send message to notify other users in the chatroom.
+	exchange := fmt.Sprintf("chatroom.%d", chatRoomId)
 	s.broker.SendMessage(exchange, exchange, broker.TypeReload, "")
 	return nil
 }
@@ -70,7 +82,6 @@ func (s *ChatRoomService) SubscribeToChatroomSocket(ws *websocket.Conn, chatRoom
 
 	defer ch.Close()
 
-	emailKey := "." + email
 	topic := "chatroom." + chatRoomId
 
 	err = broker.DefaultExchange(ch, topic)
@@ -97,21 +108,6 @@ func (s *ChatRoomService) SubscribeToChatroomSocket(ws *websocket.Conn, chatRoom
 	}
 
 	defer ch.QueueUnbind(q.Name, topic, topic, nil)
-
-	// Binding for messages only for this user
-	err = ch.QueueBind(
-		q.Name,         // queue name
-		topic+emailKey, // routing key
-		topic,          // exchange
-		false,
-		nil,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	defer ch.QueueUnbind(q.Name, topic+emailKey, topic, nil)
 
 	msgs, err := broker.DefaultConsumer(ch, q)
 	if err != nil {
@@ -140,21 +136,4 @@ func (s *ChatRoomService) SubscribeToChatroomSocket(ws *websocket.Conn, chatRoom
 
 	<-taskDone
 	return nil
-}
-
-func (s *ChatRoomService) processStockCommand(exchange string, chatRoomId int64, email, message string) error {
-	symbol, err := stockhelper.GetSymbol(message)
-	if err != nil {
-		return err
-	}
-
-	stockShare, err := stockhelper.GetShare(symbol)
-	if err != nil {
-		return err
-	}
-
-	// key := fmt.Sprintf("chatroom.%d.%s", chatRoomId, email)
-	payload := fmt.Sprintf("%s quote is $%s per share", symbol, stockShare)
-
-	return s.broker.SendMessage(exchange, exchange, broker.TypeStockRequest, payload)
 }

@@ -9,15 +9,14 @@ import (
 )
 
 type Broker struct {
-	amqpURL string
-	conn    *amqp.Connection
+	conn *amqp.Connection
 }
 
 type MessageType string
 
 type Message struct {
 	Type    MessageType `json:"type"`
-	Payload string      `json:"payload"`
+	Payload interface{} `json:"payload"`
 }
 
 const (
@@ -40,8 +39,7 @@ func New(config *configuration.Configuration) (*Broker, error) {
 	}
 
 	b := &Broker{
-		amqpURL: url,
-		conn:    conn,
+		conn: conn,
 	}
 
 	return b, nil
@@ -86,7 +84,7 @@ func DefaultConsumer(ch *amqp.Channel, q amqp.Queue) (<-chan amqp.Delivery, erro
 	)
 }
 
-func (b *Broker) SendMessage(exchange, key string, messageType MessageType, message string) error {
+func (b *Broker) SendMessage(exchange, key string, messageType MessageType, payload interface{}) error {
 	ch, err := b.conn.Channel()
 	if err != nil {
 		return err
@@ -99,12 +97,12 @@ func (b *Broker) SendMessage(exchange, key string, messageType MessageType, mess
 		return err
 	}
 
-	m := &Message{
+	msg := Message{
 		Type:    messageType,
-		Payload: message,
+		Payload: payload,
 	}
 
-	body, err := json.Marshal(m)
+	body, err := json.Marshal(msg)
 	if err != nil {
 		return err
 	}

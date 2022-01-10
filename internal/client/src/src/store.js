@@ -33,7 +33,8 @@ const store = new Vuex.Store({
 
       try {
         const url = `/api/users/${email}/chatrooms`;
-        const response = await axios.get(url);
+        const reqConfig = { headers: { Authorization: state.auth.token } };
+        const response = await axios.get(url, reqConfig);
         commit("setChatRooms", response.data);
       } catch (error) {
         console.error(error);
@@ -45,7 +46,8 @@ const store = new Vuex.Store({
 
       try {
         const url = `/api/users/${email}/friends`;
-        const response = await axios.get(url);
+        const reqConfig = { headers: { Authorization: state.auth.token } };
+        const response = await axios.get(url, reqConfig);
         state.friends = response.data;
       } catch (error) {
         console.error(error);

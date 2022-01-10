@@ -46,23 +46,18 @@ func CreateAuthToken(email, name string) (string, error) {
 	return t.SignedString(signKey)
 }
 
-func VerifyAuthToken(tokenString string) (*AuthClaims, error) {
+func VerifyAuthToken(tokenString string) error {
 
 	token, err := jwt.Parse(tokenString, parseCallback)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if !token.Valid {
-		return nil, ErrTokenNotValid
+		return ErrTokenNotValid
 	}
 
-	claims, ok := token.Claims.(*AuthClaims)
-	if !ok {
-		return nil, ErrTokenClaimsNotValid
-	}
-
-	return claims, nil
+	return nil
 }
 
 func parseCallback(t *jwt.Token) (interface{}, error) {

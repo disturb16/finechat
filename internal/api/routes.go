@@ -4,13 +4,12 @@ import (
 	"log"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func RegisterRoutes(h *Handler, e *echo.Echo) {
 	e.Use(RequestLogger)
 	e.Use(EnrichContext)
-	e.Use(middleware.CORS())
+	// e.Use(middleware.CORS())
 
 	e.GET("/healthcheck", func(c echo.Context) error {
 		return c.String(200, "OK")
@@ -22,12 +21,12 @@ func RegisterRoutes(h *Handler, e *echo.Echo) {
 	usersAPI := e.Group("/api/users")
 	usersAPI.POST("", h.RegisterUser)
 	usersAPI.POST("/signin", h.Signin)
-	usersAPI.GET("/:email/chatrooms", h.chatRoomsByUser)
-	usersAPI.POST("/:email/friends", h.addFriend)
-	usersAPI.GET("/:email/friends", h.userFriends)
+	usersAPI.GET("/:email/chatrooms", h.chatRoomsByUser, VerifyAuth)
+	usersAPI.POST("/:email/friends", h.addFriend, VerifyAuth)
+	usersAPI.GET("/:email/friends", h.userFriends, VerifyAuth)
 
 	// ======= CHATROOM ENDPIONTS ===========
-	chatroomsAPI := e.Group("/api/chatrooms")
+	chatroomsAPI := e.Group("/api/chatrooms", VerifyAuth)
 	chatroomsAPI.POST("", h.createChatRoom)
 	chatroomsAPI.POST("/:chatRoomId/messages", h.createChatRoomMessage)
 	chatroomsAPI.GET("/:chatRoomId/messages", h.chatRoomMessages)

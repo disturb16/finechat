@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/disturb16/finechat/logger"
+	"github.com/disturb16/finechat/tokenparser"
 	"github.com/labstack/echo/v4"
 )
 
@@ -53,6 +55,23 @@ func EnrichContext(next echo.HandlerFunc) echo.HandlerFunc {
 
 		// Set context to request
 		c.SetRequest(r.WithContext(ctx))
+
+		return next(c)
+	}
+}
+
+// VerifyAtuh verifies the auth token.
+func VerifyAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		// Get token token
+		token := c.Request().Header.Get("Authorization")
+
+		err := tokenparser.VerifyAuthToken(token)
+		if err != nil {
+			logger.Println(c.Request().Context(), err)
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid authorization token")
+		}
 
 		return next(c)
 	}

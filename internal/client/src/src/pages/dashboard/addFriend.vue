@@ -41,7 +41,13 @@ export default {
 
       try {
         const url = `/api/users/${email}/friends`;
-        await axios.post(url, data);
+        const reqConfig = {
+          headers: {
+            Authorization: this.$store.state.auth.token,
+          },
+        };
+
+        await axios.post(url, data, reqConfig);
         this.$store.dispatch("fetchFriends");
         this.$router.push("/");
       } catch (error) {

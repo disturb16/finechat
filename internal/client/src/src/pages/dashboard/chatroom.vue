@@ -155,7 +155,7 @@ export default {
           created_date: new Date(),
         };
 
-        await axios.post(url, data);
+        await axios.post(url, data, this.getReqConfig());
       } catch (error) {
         console.error(error);
       }
@@ -166,8 +166,7 @@ export default {
     async getMessages(chatRoomId) {
       try {
         const url = `/api/chatrooms/${chatRoomId}/messages`;
-        const response = await axios.get(url);
-
+        const response = await axios.get(url, this.getReqConfig());
         this.chatMessages = response.data;
       } catch (error) {
         console.error(error);
@@ -177,12 +176,19 @@ export default {
     async fetcheChatRoomUsers(chatRoomId) {
       try {
         const url = `/api/chatrooms/${chatRoomId}/users`;
-        const response = await axios.get(url);
-
+        const response = await axios.get(url, this.getReqConfig());
         this.chatRoomUsers = response.data;
       } catch (error) {
         console.error(error);
       }
+    },
+
+    getReqConfig() {
+      return {
+        headers: {
+          Authorization: this.$store.state.auth.token,
+        },
+      };
     },
 
     async saveNewParticipant() {
@@ -192,7 +198,7 @@ export default {
           email: this.newParticipantEmail,
         };
 
-        await axios.post(url, data);
+        await axios.post(url, data, this.getReqConfig());
 
         this.fetcheChatRoomUsers(this.chatRoomId);
 
@@ -207,7 +213,7 @@ export default {
       try {
         const url = `/api/chatrooms/${this.chatRoomId}/users/${email}`;
 
-        await axios.delete(url);
+        await axios.delete(url, this.getReqConfig());
 
         this.fetcheChatRoomUsers(this.chatRoomId);
       } catch (error) {

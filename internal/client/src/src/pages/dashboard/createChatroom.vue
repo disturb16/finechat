@@ -47,7 +47,13 @@ export default {
       };
 
       try {
-        await axios.post("/api/chatrooms", data);
+        const reqConfig = {
+          headers: {
+            Authorization: this.$store.state.auth.token,
+          },
+        };
+
+        await axios.post("/api/chatrooms", data, reqConfig);
         this.$store.dispatch("fetchChatRooms");
         this.$router.push("/");
       } catch (error) {

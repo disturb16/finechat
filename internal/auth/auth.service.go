@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/disturb16/finechat/internal/auth/models"
 	"github.com/disturb16/finechat/tokenparser"
@@ -15,8 +16,12 @@ type AuthService struct {
 	repo Repository
 }
 
-// ErrUserExists is returned when the user already exists.
-var ErrUserExists error = errors.New("user already exists")
+var (
+	// ErrUserExists is returned when the user already exists.
+	ErrUserExists error = errors.New("user already exists")
+	// ErrUserNotFound is returned when the user is not found.
+	ErrUserNotFound error = errors.New("user not found")
+)
 
 // RegisterUser registers a new user.
 func (s *AuthService) RegisterUser(ctx context.Context, firstName, lastName, email, password string) error {
@@ -37,7 +42,8 @@ func (s *AuthService) RegisterUser(ctx context.Context, firstName, lastName, ema
 func (s *AuthService) LoginUser(ctx context.Context, email, password string) (string, error) {
 	u, err := s.repo.FindUserByEmail(ctx, email)
 	if err != nil {
-		return "", err
+		log.Println(err)
+		return "", ErrUserNotFound
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))

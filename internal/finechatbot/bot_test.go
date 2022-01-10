@@ -1,4 +1,4 @@
-package stockhelper
+package finechatbot
 
 import (
 	"io"

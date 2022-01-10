@@ -35,6 +35,8 @@ WORKDIR /${project}/internal/client/src
 RUN npm run build
 
 WORKDIR /${project}
+RUN rm -rf ./internal/client/src
+
 RUN go build -o ./${project} \
     && upx ./${project}
 

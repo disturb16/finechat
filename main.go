@@ -11,6 +11,7 @@ import (
 	"github.com/disturb16/finechat/database"
 	"github.com/disturb16/finechat/internal/api"
 	"github.com/disturb16/finechat/internal/auth"
+	"github.com/disturb16/finechat/internal/finechatbot"
 
 	"github.com/disturb16/finechat/internal/chatroom"
 	"github.com/disturb16/finechat/internal/client"
@@ -38,6 +39,9 @@ func main() {
 			api.RegisterRoutes,
 			configureLifeCycle,
 			client.SetResources,
+			func(b *broker.Broker) {
+				go finechatbot.Listen(b)
+			},
 		),
 	)
 
