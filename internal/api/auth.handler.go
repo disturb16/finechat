@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/disturb16/finechat/internal/api/dtos"
+	"github.com/disturb16/finechat/internal/auth"
 	"github.com/disturb16/finechat/logger"
 	"github.com/labstack/echo/v4"
 )
@@ -59,6 +60,10 @@ func (h *Handler) Signin(c echo.Context) error {
 
 	token, err := h.authService.LoginUser(ctx, params.Email, params.Password)
 	if err != nil {
+		if err == auth.ErrUserNotFound || err == auth.ErrInvalidUserCredentials {
+			return c.JSON(http.StatusBadRequest, auth.ErrUserNotFound)
+		}
+
 		return c.JSON(http.StatusInternalServerError, ErrInternalServer)
 	}
 

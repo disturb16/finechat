@@ -20,7 +20,8 @@ var (
 	// ErrUserExists is returned when the user already exists.
 	ErrUserExists error = errors.New("user already exists")
 	// ErrUserNotFound is returned when the user is not found.
-	ErrUserNotFound error = errors.New("user not found")
+	ErrUserNotFound           error = errors.New("user not found")
+	ErrInvalidUserCredentials error = errors.New("invalid user credentials")
 )
 
 // RegisterUser registers a new user.
@@ -48,7 +49,8 @@ func (s *AuthService) LoginUser(ctx context.Context, email, password string) (st
 
 	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	if err != nil {
-		return "", err
+		log.Println(err)
+		return "", ErrInvalidUserCredentials
 	}
 
 	name := fmt.Sprintf("%s %s", u.FirstName, u.LastName)

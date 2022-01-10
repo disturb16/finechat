@@ -18,6 +18,13 @@
         Submit
       </button>
       <router-link class="register-link" to="/register"> Register</router-link>
+      <div
+        v-if="errorMessage != ''"
+        class="command-error alert alert-danger"
+        role="alert"
+      >
+        {{ errorMessage }}
+      </div>
     </form>
   </div>
 </template>
@@ -31,6 +38,7 @@ export default {
     return {
       email: "",
       password: "",
+      errorMessage: "",
     };
   },
 
@@ -41,14 +49,19 @@ export default {
         password: this.password,
       };
 
+      this.errorMessage = "";
+
       try {
         const response = await axios.post("/api/users/signin", data);
-
         this.$store.commit("setAuth", response.data.token);
 
         this.$router.push("/");
       } catch (error) {
-        console.error(error);
+        if (error.response.status === 400 || error.response.status === 401) {
+          this.errorMessage = "Invalid user credentials";
+        } else {
+          this.errorMessage = "Something went wrong";
+        }
       }
     },
   },

@@ -22,9 +22,23 @@
               aria-labelledby="panelsStayOpen-headingOne"
             >
               <div class="accordion-body">
-                <router-link class="btn btn-primary" to="/chatrooms/create"
-                  >New</router-link
-                >
+                <div class="row">
+                  <div class="col col-md6">
+                    <router-link class="btn btn-primary" to="/chatrooms/create"
+                      >New</router-link
+                    >
+                  </div>
+                  <div class="col col-md6">
+                    <a
+                      href="#"
+                      class="btn btn-primary"
+                      @click.prevent="reloadChatRooms"
+                    >
+                      refresh
+                    </a>
+                  </div>
+                </div>
+
                 <ul class="list-item">
                   <li v-for="cr in chatRooms" :key="cr.id">
                     <router-link :to="chatRoomUrl(cr.id)">{{
@@ -87,6 +101,10 @@ export default {
   methods: {
     chatRoomUrl(id) {
       return `/chatrooms/${id}`;
+    },
+
+    reloadChatRooms() {
+      this.$store.dispatch("fetchChatRooms");
     },
   },
 

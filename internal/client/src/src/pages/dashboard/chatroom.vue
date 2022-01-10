@@ -22,7 +22,12 @@
             v-model="messageContent"
             class="form-control"
             aria-label="With textarea"
-            @keypress.enter.prevent="sendMessage"
+            @keypress.enter.prevent="
+              () => {
+                commandErrorMessage = '';
+                sendMessage();
+              }
+            "
           ></textarea>
           <button class="btn btn-primary" type="button" disabled v-if="loading">
             <span
@@ -42,11 +47,18 @@
             Send
           </button>
         </div>
+        <div
+          v-if="commandErrorMessage != ''"
+          class="command-error alert alert-danger"
+          role="alert"
+        >
+          {{ commandErrorMessage }}
+        </div>
       </footer>
     </section>
     <aside>
       <h2>
-        Participants
+        Guests
         <button
           type="button"
           class="btn btn-primary"
@@ -121,6 +133,7 @@ export default {
       messageContent: "",
       chatRoomUsers: [{ email: "ss", name: "ss" }],
       newParticipantEmail: "",
+      commandErrorMessage: "",
     };
   },
 
@@ -260,6 +273,10 @@ export default {
             this.addStockMessage(data);
             break;
 
+          case "command_error":
+            this.commandErrorMessage = data.payload;
+            break;
+
           default:
             break;
         }
@@ -317,7 +334,7 @@ aside {
 #main {
   overflow: auto;
   padding-bottom: 150px; /* this needs to be bigger than footer height*/
-  height: 60vh;
+  height: 70vh;
   overflow-y: scroll;
   scrollbar-color: rebeccapurple green;
   scrollbar-width: thin;
@@ -326,7 +343,7 @@ aside {
 .footer {
   position: relative;
   margin-top: -150px; /* negative value of footer height */
-  height: 150px;
+  height: 25vh;
   clear: both;
   padding-top: 20px;
 }

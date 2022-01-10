@@ -126,18 +126,29 @@ func Listen(b *broker.Broker) error {
 }
 
 func processStockCommand(b *broker.Broker, sc *StockCommand) error {
+	exchange := fmt.Sprintf("chatroom.%d", sc.ChatRoomID)
+
+	// Get the stock symbol from the command.
 	symbol, err := GetSymbol(sc.Message)
 	if err != nil {
-		return err
+		log.Println(err)
+		return sendErrorToUser(b, exchange, sc.Email, sc.Message)
 	}
 
+	// Get the share price.
 	share, err := GetShare(symbol)
-	if err != nil {
-		return err
+	if err != nil || share == "N/D" {
+		log.Println(err)
+		return sendErrorToUser(b, exchange, sc.Email, sc.Message)
 	}
 
-	exchange := fmt.Sprintf("chatroom.%d", sc.ChatRoomID)
+	// Send the share price to the chatroom.
 	payload := fmt.Sprintf("%s quote is $%s per share", symbol, share)
-
 	return b.SendMessage(exchange, exchange, broker.TypeStockRequest, payload)
+}
+
+func sendErrorToUser(b *broker.Broker, exchange, email, message string) error {
+	key := exchange + "." + email
+	payload := "Coudln't process your command: " + message
+	return b.SendMessage(exchange, key, broker.TypeCommandError, payload)
 }

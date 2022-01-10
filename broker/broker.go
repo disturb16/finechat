@@ -22,6 +22,7 @@ type Message struct {
 const (
 	TypeReload       MessageType = "reload"
 	TypeStockRequest MessageType = "stock_request"
+	TypeCommandError MessageType = "command_error"
 )
 
 func New(config *configuration.Configuration) (*Broker, error) {

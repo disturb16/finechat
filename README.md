@@ -16,7 +16,7 @@ After this you can deploy the stack with the following.
 
 `docker stack deploy -c docker-compose.yml finechat`
 
-The application will now be running on port 8081 after it initilizes.
+Wait for it to initialize completely, and visit http://localhost:8081.
 
 ## Removing the stack
 

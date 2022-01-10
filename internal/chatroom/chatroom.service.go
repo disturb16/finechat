@@ -109,6 +109,22 @@ func (s *ChatRoomService) SubscribeToChatroomSocket(ws *websocket.Conn, chatRoom
 
 	defer ch.QueueUnbind(q.Name, topic, topic, nil)
 
+	// Binding for messages of the user.
+	key := topic + "." + email
+	err = ch.QueueBind(
+		q.Name, // queue name
+		key,    // routing key
+		topic,  // exchange
+		false,
+		nil,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	defer ch.QueueUnbind(q.Name, key, topic, nil)
+
 	msgs, err := broker.DefaultConsumer(ch, q)
 	if err != nil {
 		return err
