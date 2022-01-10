@@ -1,6 +1,6 @@
 name: Test and release
 
-ok:
+on:
   push:
     branches: [main]
   pull_request:
