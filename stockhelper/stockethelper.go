@@ -2,27 +2,23 @@ package stockhelper
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"regexp"
+	"strings"
 )
 
 const apiURL string = "https://stooq.com/q/l/?s=%s&f=sd2t2ohlcv&h&e=csv"
 
+var ErrInvalidSymbol error = errors.New("invalid stock symbol")
+
 func GetSymbol(val string) (string, error) {
-	rgx, err := regexp.Compile("(/)([A-z]*)=([A-z]*).([A-z]*)")
-	if err != nil {
-		return "", err
+	if !strings.HasPrefix(val, "/stock=") || len(val) == 7 {
+		return "", ErrInvalidSymbol
 	}
 
-	parts := rgx.FindStringSubmatch(val)
-	if len(parts) < 4 {
-		return "", fmt.Errorf("Invalid stock symbol")
-	}
-
-	symbol := fmt.Sprintf("%s.%s", parts[3], parts[4])
-
+	symbol := val[7:]
 	return symbol, nil
 }
 
