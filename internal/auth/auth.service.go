@@ -26,8 +26,8 @@ var (
 
 // RegisterUser registers a new user.
 func (s *AuthService) RegisterUser(ctx context.Context, firstName, lastName, email, password string) error {
-	_, err := s.repo.FindUserByEmail(ctx, email)
-	if err == nil {
+	u, _ := s.repo.FindUserByEmail(ctx, email)
+	if u != nil {
 		return ErrUserExists
 	}
 
@@ -42,7 +42,7 @@ func (s *AuthService) RegisterUser(ctx context.Context, firstName, lastName, ema
 // LoginUser authenticates an user and returns the jwt.
 func (s *AuthService) LoginUser(ctx context.Context, email, password string) (string, error) {
 	u, err := s.repo.FindUserByEmail(ctx, email)
-	if err != nil {
+	if u == nil || err != nil {
 		log.Println(err)
 		return "", ErrUserNotFound
 	}
@@ -59,8 +59,9 @@ func (s *AuthService) LoginUser(ctx context.Context, email, password string) (st
 
 func (s *AuthService) FindUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	u, err := s.repo.FindUserByEmail(ctx, email)
-	if err != nil {
-		return nil, err
+	if u == nil || err != nil {
+		log.Println(err)
+		return nil, ErrUserNotFound
 	}
 
 	return u.ToUser(), nil

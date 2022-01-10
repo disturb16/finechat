@@ -43,7 +43,11 @@ func (r *AuthRepository) FindUserByEmail(
 	u := &models.UserWithPassword{}
 
 	err := r.db.GetContext(ctx, u, qryFindByEmail, email)
-	return u, err
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
 }
 
 func (r *AuthRepository) SaveFriend(
