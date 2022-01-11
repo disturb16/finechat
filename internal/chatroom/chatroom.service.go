@@ -15,7 +15,7 @@ import (
 
 type ChatRoomService struct {
 	repo   Repository
-	broker *broker.Broker
+	broker broker.MessageBroker
 }
 
 func (s *ChatRoomService) CreateChatRoom(ctx context.Context, name string, userID int64) error {

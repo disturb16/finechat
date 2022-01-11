@@ -41,7 +41,7 @@ func NewRepository(db *sqlx.DB) Repository {
 	return &ChatRoomRepository{db: db}
 }
 
-func NewService(repo Repository, b *broker.Broker) Service {
+func NewService(repo Repository, b broker.MessageBroker) Service {
 	return &ChatRoomService{
 		repo:   repo,
 		broker: b,

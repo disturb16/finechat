@@ -8,6 +8,12 @@ import (
 	"github.com/streadway/amqp"
 )
 
+type MessageBroker interface {
+	Channel() (*amqp.Channel, error)
+	SendMessage(exchange, key string, messageType MessageType, payload interface{}) error
+	Close() error
+}
+
 type Broker struct {
 	conn *amqp.Connection
 }
