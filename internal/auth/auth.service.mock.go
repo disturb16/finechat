@@ -21,7 +21,11 @@ func (mas *MockAuthService) LoginUser(ctx context.Context, email, password strin
 }
 
 func (mas *MockAuthService) FindUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	return nil, nil
+	if email != "john@doe.com" {
+		return nil, ErrInvalidUserCredentials
+	}
+
+	return &models.User{ID: 1, Email: email}, nil
 }
 
 func (mas *MockAuthService) AddFriend(ctx context.Context, email, friendEmail string) error {

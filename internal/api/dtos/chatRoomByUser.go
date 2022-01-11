@@ -1,5 +1,5 @@
 package dtos
 
 type ChatRoomsByUser struct {
-	Email string `json:"email" validate:"required"`
+	Email string `json:"email" validate:"required,email"`
 }
