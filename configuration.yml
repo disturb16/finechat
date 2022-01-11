@@ -5,7 +5,7 @@ Database:
   host: db
   port: 3306
   name: finechat
-  user: root
+  user: appuser
   password: 1234
 RabbitMQ:
   host: rabbitmq

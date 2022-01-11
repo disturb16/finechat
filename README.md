@@ -28,12 +28,14 @@ And to leave the swarm mode just type:
 
 `docker swarm leave`
 
+# Database
+This project uses mariadb as the database engine. The `docker-compose.yml` file loads the `finechat_schema.sql` script to initialize the database schema and creates the appuser which is used by the api to connect.
+
 # Browser Support
 
 - Chrome
 - Firefox
 - Edge
-
 
 # Project structure
 

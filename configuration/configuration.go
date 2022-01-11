@@ -15,6 +15,7 @@ type Application struct {
 	Port  int  `yaml:"port"`
 }
 
+// RabbitMQConfiguration represents the RabbitMQ configuration.
 type RabbitMQConfiguration struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`

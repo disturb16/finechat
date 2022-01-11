@@ -20,17 +20,21 @@ const (
 
 var ErrInvalidSymbol error = errors.New("invalid stock symbol")
 
+// StockCommand is the payload for the stock command.
 type StockCommand struct {
 	Email      string `json:"email"`
 	ChatRoomID int64  `json:"chatroom_id"`
 	Message    string `json:"message"`
 }
 
+// stockMessage is the incoming payload for the stock command.
 type stockMessage struct {
 	Type    string       `json:"type"`
 	Payload StockCommand `json:"payload"`
 }
 
+// GetSymbol returns the stock symbol from the message,
+// for example if the message is "/stock=googl.us", it returns "googl.us".
 func GetSymbol(val string) (string, error) {
 	if !strings.HasPrefix(val, "/stock=") || len(val) == 7 {
 		return "", ErrInvalidSymbol
@@ -40,6 +44,7 @@ func GetSymbol(val string) (string, error) {
 	return symbol, nil
 }
 
+// GetShare returns the share price for the given symbol.
 func GetShare(symbol string) (string, error) {
 	url := fmt.Sprintf(apiURL, symbol)
 	resp, err := http.Get(url)
@@ -52,6 +57,7 @@ func GetShare(symbol string) (string, error) {
 	return parseStockData(resp.Body)
 }
 
+// parseStockData parses the stock data from the response body (a csv content).
 func parseStockData(data io.Reader) (string, error) {
 	csvLines, err := csv.NewReader(data).ReadAll()
 	if err != nil {
@@ -63,6 +69,7 @@ func parseStockData(data io.Reader) (string, error) {
 	return closingPrice, nil
 }
 
+// Listen listens for stock commands and processes them.
 func Listen(b broker.MessageBroker) error {
 	ch, err := b.Channel()
 	if err != nil {
@@ -125,6 +132,7 @@ func Listen(b broker.MessageBroker) error {
 	return nil
 }
 
+// processStockCommand processes the stock command.
 func processStockCommand(b broker.MessageBroker, sc *StockCommand) error {
 	exchange := fmt.Sprintf("chatroom.%d", sc.ChatRoomID)
 
@@ -147,6 +155,7 @@ func processStockCommand(b broker.MessageBroker, sc *StockCommand) error {
 	return b.SendMessage(exchange, exchange, broker.TypeStockRequest, payload)
 }
 
+// sendErrorToUser sends an error message to the user that triggered the event.
 func sendErrorToUser(b broker.MessageBroker, exchange, email, message string) error {
 	key := exchange + "." + email
 	payload := "Coudln't process your command: " + message

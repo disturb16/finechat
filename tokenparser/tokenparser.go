@@ -10,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+// AuthClaims is the JWT claims for the auth token.
 type AuthClaims struct {
 	*jwt.StandardClaims
 	Email string `json:"email"`
@@ -32,6 +33,7 @@ func init() {
 	}
 }
 
+// CreateAuthToken returns a new auth token.
 func CreateAuthToken(email, name string) (string, error) {
 	t := jwt.New(jwt.GetSigningMethod("RS256"))
 
@@ -46,8 +48,8 @@ func CreateAuthToken(email, name string) (string, error) {
 	return t.SignedString(signKey)
 }
 
+// VerifyAuthToken verifies the auth token.
 func VerifyAuthToken(tokenString string) error {
-
 	token, err := jwt.Parse(tokenString, parseCallback)
 	if err != nil {
 		return err
@@ -60,6 +62,7 @@ func VerifyAuthToken(tokenString string) error {
 	return nil
 }
 
+// parseCallback is the callback function for the jwt.Parse.
 func parseCallback(t *jwt.Token) (interface{}, error) {
 	if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
 		return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])

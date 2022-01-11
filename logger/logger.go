@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-
-	"github.com/disturb16/finechat/configuration"
 )
 
 const (
@@ -13,12 +11,7 @@ const (
 	RealIPKey    string = "x-real-ip"
 )
 
-var debug bool
-
-func Setup(conif *configuration.Configuration) {
-	debug = conif.App.Debug
-}
-
+// contextArgs returns the context arguments as a slice of strings.
 func contextArgs(ctx context.Context) []interface{} {
 	requestID, ok := ctx.Value(RequestIDKey).(string)
 	if !ok {
@@ -38,6 +31,7 @@ func contextArgs(ctx context.Context) []interface{} {
 	return append(msgArgs, reqIDArg, realIPArg)
 }
 
+// Println prints a log message with the context arguments.
 func Println(ctx context.Context, args ...interface{}) {
 	msgArgs := contextArgs(ctx)
 	args = append(args, msgArgs...)

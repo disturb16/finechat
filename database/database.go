@@ -10,6 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// DatabaseConfiguration is the configuration for a database.
 type DatabaseConfiguration struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`

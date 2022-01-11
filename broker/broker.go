@@ -8,29 +8,37 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// MessageBroker is the interface for the broker.
 type MessageBroker interface {
 	Channel() (*amqp.Channel, error)
 	SendMessage(exchange, key string, messageType MessageType, payload interface{}) error
 	Close() error
 }
 
+// Broker is the message broker.
 type Broker struct {
 	conn *amqp.Connection
 }
 
+// MessageType is the type of the message.
 type MessageType string
 
+// Message is the basic format of the message.
 type Message struct {
 	Type    MessageType `json:"type"`
 	Payload interface{} `json:"payload"`
 }
 
 const (
-	TypeReload       MessageType = "reload"
+	// TypeReload indicates that the chatroom should reload the messages.
+	TypeReload MessageType = "reload"
+	// TypeStockRequest corresponds to the stock commands.
 	TypeStockRequest MessageType = "stock_request"
+	// TypeCommandError indicates that the command was not understood.
 	TypeCommandError MessageType = "command_error"
 )
 
+// New creates a new message broker.
 func New(config *configuration.Configuration) (*Broker, error) {
 	url := fmt.Sprintf(
 		"amqp://%s:%s@%s:%d/",
@@ -52,10 +60,12 @@ func New(config *configuration.Configuration) (*Broker, error) {
 	return b, nil
 }
 
+// Channel returns the amqp channel.
 func (b *Broker) Channel() (*amqp.Channel, error) {
 	return b.conn.Channel()
 }
 
+// DefaultExchange sets the exchange with default configuration.
 func DefaultExchange(ch *amqp.Channel, exchange string) error {
 	return ch.ExchangeDeclare(
 		exchange, // name
@@ -68,6 +78,7 @@ func DefaultExchange(ch *amqp.Channel, exchange string) error {
 	)
 }
 
+// DefaultQueue sets the queue with default configuration.
 func DefaultQueue(ch *amqp.Channel, name string) (amqp.Queue, error) {
 	return ch.QueueDeclare(
 		name,  // name
@@ -79,6 +90,7 @@ func DefaultQueue(ch *amqp.Channel, name string) (amqp.Queue, error) {
 	)
 }
 
+// DefaultConsumer sets the consumer with default configuration.
 func DefaultConsumer(ch *amqp.Channel, q amqp.Queue) (<-chan amqp.Delivery, error) {
 	return ch.Consume(
 		q.Name, // queue
@@ -91,6 +103,7 @@ func DefaultConsumer(ch *amqp.Channel, q amqp.Queue) (<-chan amqp.Delivery, erro
 	)
 }
 
+// SendMessage sends a message to the broker.
 func (b *Broker) SendMessage(exchange, key string, messageType MessageType, payload interface{}) error {
 	ch, err := b.conn.Channel()
 	if err != nil {
@@ -125,6 +138,7 @@ func (b *Broker) SendMessage(exchange, key string, messageType MessageType, payl
 		})
 }
 
+// Close closes the broker.
 func (b *Broker) Close() error {
 	return b.conn.Close()
 }

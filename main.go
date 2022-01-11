@@ -40,7 +40,7 @@ func main() {
 		fx.Invoke(
 			api.RegisterRoutes,
 			configureLifeCycle,
-			client.SetResources,
+			client.SetAssetsHandlers,
 			func(b broker.MessageBroker) {
 				go finechatbot.Listen(b)
 			},
@@ -50,6 +50,7 @@ func main() {
 	app.Run()
 }
 
+// dbConnection returns a sqlx connection.
 func dbConnection(ctx context.Context, cfg *configuration.Configuration) (*sqlx.DB, error) {
 	return database.CreateMysqlConnection(ctx, cfg.DB)
 }

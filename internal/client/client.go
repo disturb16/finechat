@@ -11,7 +11,8 @@ import (
 //go:embed dist
 var assetsSource embed.FS
 
-func SetResources(e *echo.Echo) {
+// SetAssetsHandlers sets the http handlers for the static assets.
+func SetAssetsHandlers(e *echo.Echo) {
 	fsys, err := fs.Sub(assetsSource, "dist")
 	if err != nil {
 		panic(err)
