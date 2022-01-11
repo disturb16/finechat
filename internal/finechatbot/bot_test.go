@@ -33,6 +33,8 @@ func TestGetSymbol(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+
 			_, err := GetSymbol(tc.Value)
 
 			if err != tc.ExpectedError {
@@ -65,6 +67,8 @@ func TestParseStockData(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+
 			value, err := parseStockData(tc.Data)
 			if err != nil {
 				t.Errorf("Unexpected error: %v", err)

@@ -48,6 +48,8 @@ func TestRegisterUser(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+
 			err := s.RegisterUser(ctx, tc.FirstName, tc.LastName, tc.Email, tc.Password)
 			if err != tc.ExpectedError {
 				t.Errorf("Expected error %v, got %v", tc.ExpectedError, err)
@@ -89,6 +91,8 @@ func TestLoginUser(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+
 			_, err := s.LoginUser(ctx, tc.Email, tc.Password)
 			if err != tc.ExpectedError {
 				t.Errorf("Expected error %v, got %v", tc.ExpectedError, err)
@@ -121,6 +125,8 @@ func TestFindUserByEmail(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+
 			_, err := s.FindUserByEmail(ctx, tc.Email)
 			if err != tc.ExpectedError {
 				t.Errorf("Expected error %v, got %v", tc.ExpectedError, err)

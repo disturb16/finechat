@@ -38,6 +38,8 @@ func TestCreateChatRoom(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+
 			err := s.CreateChatRoom(ctx, tc.ChatRoomName, tc.UserID)
 			if err != tc.ExpectedError {
 				t.Errorf("Expected error %v, got %v", tc.ExpectedError, err)
@@ -76,6 +78,8 @@ func TestPostChatRoomMessage(t *testing.T) {
 		tc := testCases[i]
 
 		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+
 			err := s.PostChatRoomMessage(ctx, tc.ChatRoomID, tc.Email, tc.Message, time.Now())
 			if err != tc.ExpectedError {
 				t.Errorf("Expected error %v, got %v", tc.ExpectedError, err)

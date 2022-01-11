@@ -12,11 +12,11 @@ type Handler struct {
 	authService     auth.Service
 	chatRoomService chatroom.Service
 	validate        *validator.Validate
-	messageBroker   *broker.Broker
+	messageBroker   broker.MessageBroker
 }
 
 // New creates a new api handler
-func NewHandler(authService auth.Service, chatRoomService chatroom.Service, mb *broker.Broker) *Handler {
+func NewHandler(authService auth.Service, chatRoomService chatroom.Service, mb broker.MessageBroker) *Handler {
 
 	v := validator.New()
 
