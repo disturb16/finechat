@@ -63,7 +63,7 @@ func parseStockData(data io.Reader) (string, error) {
 	return closingPrice, nil
 }
 
-func Listen(b *broker.Broker) error {
+func Listen(b broker.MessageBroker) error {
 	ch, err := b.Channel()
 	if err != nil {
 		return err
@@ -125,7 +125,7 @@ func Listen(b *broker.Broker) error {
 	return nil
 }
 
-func processStockCommand(b *broker.Broker, sc *StockCommand) error {
+func processStockCommand(b broker.MessageBroker, sc *StockCommand) error {
 	exchange := fmt.Sprintf("chatroom.%d", sc.ChatRoomID)
 
 	// Get the stock symbol from the command.
@@ -147,7 +147,7 @@ func processStockCommand(b *broker.Broker, sc *StockCommand) error {
 	return b.SendMessage(exchange, exchange, broker.TypeStockRequest, payload)
 }
 
-func sendErrorToUser(b *broker.Broker, exchange, email, message string) error {
+func sendErrorToUser(b broker.MessageBroker, exchange, email, message string) error {
 	key := exchange + "." + email
 	payload := "Coudln't process your command: " + message
 	return b.SendMessage(exchange, key, broker.TypeCommandError, payload)

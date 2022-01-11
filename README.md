@@ -27,3 +27,32 @@ To stop everything you can run the follwing command.
 And to leave the swarm mode just type:
 
 `docker swarm leave`
+
+# Browser Support
+
+- Chrome
+- Firefox
+
+
+# Project structure
+
+The frontend app is written in Vuejs and is located in `internal/client` which combined with golang embed files, makes working with SPAs really easy.
+
+```cli
+├── broker
+├── configuration
+├── database
+├── internal
+│   ├── api
+│   │   ├── dtos
+│   ├── auth
+│   │   └── models
+│   ├── chatroom
+│   │   └── models
+│   ├── client
+│   │   ├── dist
+│   │   └── src
+│   └── finechatbot
+├── logger
+└── tokenparser
+```

@@ -31,7 +31,9 @@ func main() {
 			chatroom.NewRepository,
 			chatroom.NewService,
 			echo.New,
-			broker.New,
+			func(config *configuration.Configuration) (broker.MessageBroker, error) {
+				return broker.New(config)
+			},
 			api.NewHandler,
 		),
 
@@ -39,7 +41,7 @@ func main() {
 			api.RegisterRoutes,
 			configureLifeCycle,
 			client.SetResources,
-			func(b *broker.Broker) {
+			func(b broker.MessageBroker) {
 				go finechatbot.Listen(b)
 			},
 		),
@@ -57,7 +59,7 @@ func configureLifeCycle(
 	db *sqlx.DB,
 	config *configuration.Configuration,
 	e *echo.Echo,
-	b *broker.Broker,
+	b broker.MessageBroker,
 ) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
