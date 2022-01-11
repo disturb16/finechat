@@ -20,7 +20,7 @@ Wait for it to initialize completely, and visit http://localhost:8081.
 
 ## Removing the stack
 
-To stop everything you can run the follwing command.
+To stop everything you can run the following command.
 
 `docker stack rm finechat`
 
