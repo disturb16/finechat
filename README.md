@@ -32,6 +32,7 @@ And to leave the swarm mode just type:
 
 - Chrome
 - Firefox
+- Edge
 
 
 # Project structure
