@@ -3,44 +3,48 @@ version: '3.7'
 services:
   db:
     image: mariadb:10.6.4
-    # Uncomment the ports below if you need to access the database from the host.
-    # ports:
-    #   - 3306:3306
     networks:
-      - finechat-net
+      - db-net
     configs:
       - source: db_schema
         target: /docker-entrypoint-initdb.d/schema.sql
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: my_super_secret_password
 
   rabbitmq:
     image: rabbitmq:3.9.12-management
-    # ports:
-      # - 5672:5672
-      # - 15672:15672
     networks:
-      - finechat-net
+      - broker-net
     environment:
       RABBITMQ_DEFAULT_USER: fcuser
       RABBITMQ_DEFAULT_PASS: 1234
       RABBITMQ_ERLANG_COOKIE: 1234
 
-  api:
-    image: finechat:latest
+  app:
+    image: finechatapp:latest
     ports:
       - 8081:8080
     networks:
-      - finechat-net
+      - broker-net
+      - db-net
     configs:
-      - source: api_config
+      - source: configuration
         target: /finechat/configuration.yml
 
+  bot:
+    image: finechatbot:latest
+    networks:
+      - broker-net
+    configs:
+      - source: configuration
+        target: /finechatbot/configuration.yml
+
 configs:
-  api_config:
+  configuration:
     file: ./configuration.yml
   db_schema:
-    file: ./finechat_schema.sql
+    file: ./finechatapp/finechat_schema.sql
 
 networks:
-  finechat-net:
+  db-net:
+  broker-net:

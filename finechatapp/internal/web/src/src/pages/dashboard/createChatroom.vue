@@ -11,15 +11,15 @@
           v-model="chatroomName"
         />
       </div>
-    </form>
 
-    <button
-      type="button"
-      class="btn btn-primary"
-      @click.prevent="createChatRoom"
-    >
-      Save
-    </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        @click.prevent="createChatRoom"
+      >
+        Save
+      </button>
+    </form>
   </div>
 </template>
 

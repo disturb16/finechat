@@ -5,7 +5,6 @@ ARG project=finechat
 # ================================
 # ======= BUILD STAGE ============
 FROM golang:1.16-alpine AS builder
-ARG swagger_host
 ARG project
 
 RUN apk update
@@ -22,8 +21,8 @@ COPY ["go.mod", "go.sum", "./"]
 RUN go mod download -x
 
 # Install frontend dependencies.
-WORKDIR /${project}/internal/client/src
-COPY ["internal/client/src/package*.json", "./"]
+WORKDIR /${project}/internal/web/src
+COPY ["internal/web/src/package*.json", "./"]
 RUN npm install
 
 # Copy the rest of the project
@@ -31,11 +30,11 @@ WORKDIR /${project}
 COPY . .
 
 # build frontend app
-WORKDIR /${project}/internal/client/src
+WORKDIR /${project}/internal/web/src
 RUN npm run build
 
 WORKDIR /${project}
-RUN rm -rf ./internal/client/src
+RUN rm -rf ./internal/web/src
 
 RUN go build -o ./${project} \
     && upx ./${project}

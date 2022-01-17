@@ -8,7 +8,6 @@ import (
 
 	"github.com/disturb16/finechat/broker"
 	"github.com/disturb16/finechat/internal/chatroom/models"
-	"github.com/disturb16/finechat/internal/finechatbot"
 
 	"github.com/gorilla/websocket"
 )
@@ -17,6 +16,14 @@ type ChatRoomService struct {
 	repo   Repository
 	broker broker.MessageBroker
 }
+
+type stockCommandMessage struct {
+	Email      string `json:"email"`
+	ChatRoomID int64  `json:"chatroom_id"`
+	Message    string `json:"message"`
+}
+
+const stockCommandTopic = "stock.command"
 
 func (s *ChatRoomService) CreateChatRoom(ctx context.Context, name string, userID int64) error {
 	return s.repo.SaveChatRoom(ctx, name, userID)
@@ -35,14 +42,14 @@ func (s *ChatRoomService) PostChatRoomMessage(ctx context.Context, chatRoomId in
 	// If the message starts with / then it is a command
 	// else is a normal message.
 	if strings.HasPrefix(message, "/") {
-		payload := &finechatbot.StockCommand{
+		payload := &stockCommandMessage{
 			Email:      email,
 			ChatRoomID: chatRoomId,
 			Message:    message,
 		}
 
 		return s.broker.SendMessage(
-			finechatbot.StockCommandTopic,
+			stockCommandTopic,
 			"",
 			broker.TypeStockRequest,
 			payload,

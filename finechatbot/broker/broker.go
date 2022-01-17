@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/disturb16/finechat/configuration"
+	"github.com/disturb16/finechatbot/configuration"
+	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 )
 
 // MessageBroker is the interface for the broker.
 type MessageBroker interface {
+	IsClosed() bool
 	Channel() (*amqp.Channel, error)
 	SendMessage(exchange, key string, messageType MessageType, payload interface{}) error
 	Close() error
@@ -30,8 +32,6 @@ type Message struct {
 }
 
 const (
-	// TypeReload indicates that the chatroom should reload the messages.
-	TypeReload MessageType = "reload"
 	// TypeStockRequest corresponds to the stock commands.
 	TypeStockRequest MessageType = "stock_request"
 	// TypeCommandError indicates that the command was not understood.
@@ -63,6 +63,10 @@ func New(config *configuration.Configuration) (*Broker, error) {
 // Channel returns the amqp channel.
 func (b *Broker) Channel() (*amqp.Channel, error) {
 	return b.conn.Channel()
+}
+
+func (b *Broker) IsClosed() bool {
+	return b.conn.IsClosed()
 }
 
 // DefaultExchange sets the exchange with default configuration.
@@ -133,8 +137,9 @@ func (b *Broker) SendMessage(exchange, key string, messageType MessageType, payl
 		false,    // mandatory
 		false,    // immediate
 		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
+			CorrelationId: uuid.New().String(),
+			ContentType:   "text/plain",
+			Body:          []byte(body),
 		})
 }
 

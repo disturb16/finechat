@@ -11,10 +11,9 @@ import (
 	"github.com/disturb16/finechat/database"
 	"github.com/disturb16/finechat/internal/api"
 	"github.com/disturb16/finechat/internal/auth"
-	"github.com/disturb16/finechat/internal/finechatbot"
+	"github.com/disturb16/finechat/internal/web"
 
 	"github.com/disturb16/finechat/internal/chatroom"
-	"github.com/disturb16/finechat/internal/client"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
@@ -40,10 +39,7 @@ func main() {
 		fx.Invoke(
 			api.RegisterRoutes,
 			configureLifeCycle,
-			client.SetAssetsHandlers,
-			func(b broker.MessageBroker) {
-				go finechatbot.Listen(b)
-			},
+			web.SetAssetsHandlers,
 		),
 	)
 

@@ -1,7 +1,7 @@
-package finechatbot
+package bot
 
 import (
-	"io"
+	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -51,14 +51,19 @@ func TestParseStockData(t *testing.T) {
 		t.Fail()
 	}
 
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		t.Fail()
+	}
+
 	testCases := []struct {
 		Name          string
-		Data          io.Reader
+		Data          []byte
 		ExpectedValue string
 	}{
 		{
 			Name:          "Should parse data",
-			Data:          f,
+			Data:          data,
 			ExpectedValue: "2740.34",
 		},
 	}
@@ -74,7 +79,7 @@ func TestParseStockData(t *testing.T) {
 				t.Errorf("Unexpected error: %v", err)
 			}
 
-			if value != tc.ExpectedValue {
+			if value.ClosePrice != tc.ExpectedValue {
 				t.Errorf("Expected value: %s, got %s", tc.ExpectedValue, value)
 			}
 		})
